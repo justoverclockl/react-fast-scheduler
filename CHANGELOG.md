@@ -1,5 +1,11 @@
 # react-fast-scheduler
 
+## 2.0.0
+
+### Major Changes
+
+- [#7](https://github.com/justoverclockl/react-fast-scheduler/pull/7) [`5961511`](https://github.com/justoverclockl/react-fast-scheduler/commit/59615113c559d1194f7e575bbf69437e20e486c8) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Enhance scheduler component
+
 ## 1.0.2
 
 ### Patch Changes
