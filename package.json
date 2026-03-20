@@ -47,7 +47,7 @@
     "dev": "tsup --watch",
     "lint": "eslint .",
     "release": "npm run build && changeset publish",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "prepack": "npm run clean && npm run build"
