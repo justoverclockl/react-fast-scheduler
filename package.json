@@ -1,5 +1,5 @@
 {
-  "name": "react-fast-scheduler",
+  "name": "@justoverclockl/react-fast-scheduler",
   "version": "1.0.0",
   "description": "A lightweight React scheduling library.",
   "keywords": [
@@ -31,11 +31,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-org/react-fast-scheduler.git"
+    "url": "git+https://github.com/justoverclockl/react-fast-scheduler.git"
   },
-  "homepage": "https://github.com/your-org/react-fast-scheduler#readme",
+  "homepage": "https://github.com/justoverclockl/react-fast-scheduler#readme",
   "bugs": {
-    "url": "https://github.com/your-org/react-fast-scheduler/issues"
+    "url": "https://github.com/justoverclockl/react-fast-scheduler/issues"
   },
   "scripts": {
     "build": "npm run build:js && npm run build:css",
