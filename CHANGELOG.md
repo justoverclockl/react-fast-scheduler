@@ -1,5 +1,11 @@
 # react-fast-scheduler
 
+## 1.0.1
+
+### Patch Changes
+
+- [`7fca7a4`](https://github.com/justoverclockl/react-fast-scheduler/commit/7fca7a4c18d1181793953714c8e6e4c1d7bbfda5) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Align package metadata and README usage to scoped npm package name.
+
 ## 1.0.0
 
 ### Major Changes
