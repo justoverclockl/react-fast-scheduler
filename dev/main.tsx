@@ -68,7 +68,7 @@ function App() {
                             <div className="text-sm font-semibold text-foreground">Team schedule</div>
                             <div className="text-xs text-muted-foreground">{value.toDateString()}</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center flex-wrap gap-2">
                             <Button variant="outline" size="sm" onClick={goToPreviousDay}>
                                 Indietro
                             </Button>

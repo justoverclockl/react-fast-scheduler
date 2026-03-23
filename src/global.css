@@ -236,8 +236,9 @@
 }
 
 .rfs-gutter {
-  @apply shrink-0 border-r;
+  @apply sticky left-0 z-20 shrink-0 border-r;
   border-color: var(--rfs-border);
+  background: var(--rfs-surface);
 }
 
 .rfs-resource-header {
@@ -255,8 +256,10 @@
 }
 
 .rfs-times {
-  @apply relative shrink-0 border-r;
+  @apply sticky left-0 z-10 relative shrink-0 border-r;
   border-color: var(--rfs-border);
+  background: var(--rfs-surface);
+  box-shadow: 8px 0 12px -12px rgb(0 0 0 / 0.18);
 }
 
 .rfs-time-tick {
