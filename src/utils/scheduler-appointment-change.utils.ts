@@ -1,4 +1,4 @@
-import type { SchedulerAppointmentChangeArgs, SchedulerId } from "./types";
+import type { SchedulerAppointmentChangeArgs, SchedulerId } from "../types";
 
 export type ApplySchedulerAppointmentChangeOptions<TAppointment, TResourceId extends SchedulerId> = {
   getId: (appointment: TAppointment) => SchedulerId;
@@ -16,6 +16,7 @@ export function applySchedulerAppointmentChange<TAppointment, TResourceId extend
     if (options.getId(item) !== options.getId(change.appointment)) {
       return item;
     }
+
     const withResource = options.setResourceId(item, change.next.resourceId);
     const withStart = options.setStart(withResource, change.next.start);
     return options.setEnd(withStart, change.next.end);
