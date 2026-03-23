@@ -11,6 +11,6 @@ export type {
   SchedulerId,
   SchedulerProps
 } from "./types";
-export { Scheduler } from "./components/Scheduler";
-export { applySchedulerAppointmentChange } from "./appointment-change";
-export type { ApplySchedulerAppointmentChangeOptions } from "./appointment-change";
+export { Scheduler } from "./components/scheduler";
+export { applySchedulerAppointmentChange } from "./utils/scheduler-appointment-change.utils";
+export type { ApplySchedulerAppointmentChangeOptions } from "./utils/scheduler-appointment-change.utils";
