@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import type { SchedulerAppointmentColorToken } from "../types/scheduler";
 import { STEP_MIN } from "../components/constants";
-import type { LaidOut, NameLike, TimeBlockLike } from "../hooks/types";
+import type { LaidOut, NameLike, TimeBlockLike } from "../types/internal";
 
 export function isNameLike(resource: unknown): resource is NameLike {
   if (!resource || typeof resource !== "object") {

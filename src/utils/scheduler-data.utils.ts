@@ -9,7 +9,7 @@ import type {
   BuildResourceMapOptions,
   NormalizeAppointmentsArgs,
   SchedulerLayoutAppointment
-} from "../hooks/types";
+} from "../types/internal";
 import {
   clamp,
   dateAtMinute,
@@ -30,6 +30,7 @@ export function buildResourceMap<TResource, TResourceId extends SchedulerId, TVa
   }
   return map;
 }
+
 
 export function normalizeAppointments<TAppointment, TResourceId extends SchedulerId>({
   adapter,
