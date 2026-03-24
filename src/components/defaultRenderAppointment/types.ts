@@ -1,11 +1,11 @@
-import type * as React from "react";
-import type { RefObject } from "react";
 import type {
   SchedulerAppointmentAppearance,
   SchedulerDragState,
   SchedulerEvent,
-  SchedulerId
+  SchedulerId,
 } from "../../types/scheduler";
+import type * as React from "react";
+import type { RefObject } from "react";
 
 export type DefaultRenderAppointmentProps<TAppointment, TResourceId extends SchedulerId> = {
   appointment: SchedulerEvent<TAppointment, TResourceId> & { lane: number; lanes: number };

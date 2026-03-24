@@ -1,28 +1,29 @@
-import type {
-  BaseSchedulerResource,
-  SchedulerAppointmentAppearance,
-  SchedulerDragState,
-  SchedulerEvent,
-  SchedulerId
-} from "../types/scheduler";
-import type {
-  BuildResourceMapOptions,
-  NormalizeAppointmentsArgs,
-  SchedulerLayoutAppointment
-} from "../types/internal";
 import {
   clamp,
   dateAtMinute,
   dayISO,
   layoutOverlaps,
-  minutesFromDayStart
+  minutesFromDayStart,
 } from "./scheduler-core.utils";
+
+import type {
+  BuildResourceMapOptions,
+  NormalizeAppointmentsArgs,
+  SchedulerLayoutAppointment,
+} from "../types/internal";
+import type {
+  BaseSchedulerResource,
+  SchedulerAppointmentAppearance,
+  SchedulerDragState,
+  SchedulerEvent,
+  SchedulerId,
+} from "../types/scheduler";
 
 export function buildResourceMap<TResource, TResourceId extends SchedulerId, TValue>({
   fallback,
   getValue,
   resources,
-  toKey
+  toKey,
 }: BuildResourceMapOptions<TResource, TResourceId, TValue>) {
   const map = new Map<TResourceId, TValue | undefined>();
   for (const resource of resources) {
@@ -31,13 +32,12 @@ export function buildResourceMap<TResource, TResourceId extends SchedulerId, TVa
   return map;
 }
 
-
 export function normalizeAppointments<TAppointment, TResourceId extends SchedulerId>({
   adapter,
   appointments,
   dayMinutes,
   dayStartAbs,
-  selectedISO
+  selectedISO,
 }: NormalizeAppointmentsArgs<TAppointment, TResourceId>) {
   return appointments
     .map((appointment) => {
@@ -51,13 +51,15 @@ export function normalizeAppointments<TAppointment, TResourceId extends Schedule
         end,
         startMin: clamp(minutesFromDayStart(dayStartAbs, start), 0, dayMinutes),
         endMin: clamp(minutesFromDayStart(dayStartAbs, end), 0, dayMinutes),
-        title: adapter.getTitle(appointment)
+        title: adapter.getTitle(appointment),
       };
     })
     .filter((appointment) => dayISO(appointment.start) === selectedISO);
 }
 
-export function buildAppointmentMap<TAppointment, TResourceId extends SchedulerId>(appointments: SchedulerEvent<TAppointment, TResourceId>[]) {
+export function buildAppointmentMap<TAppointment, TResourceId extends SchedulerId>(
+  appointments: SchedulerEvent<TAppointment, TResourceId>[]
+) {
   return new Map(appointments.map((appointment) => [appointment.id, appointment]));
 }
 
@@ -82,7 +84,7 @@ export function applyDragToAppointments<TAppointment, TResourceId extends Schedu
       startMin: drag.startMin,
       endMin: drag.endMin,
       start: dateAtMinute(selectedDate, dayStartAbs, drag.startMin),
-      end: dateAtMinute(selectedDate, dayStartAbs, drag.endMin)
+      end: dateAtMinute(selectedDate, dayStartAbs, drag.endMin),
     };
   });
 }
@@ -90,9 +92,12 @@ export function applyDragToAppointments<TAppointment, TResourceId extends Schedu
 export function buildLaidOutByResource<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
+  TResourceId extends SchedulerId,
 >(resources: TResource[], appointments: SchedulerEvent<TAppointment, TResourceId>[]) {
-  const appointmentsByResource = new Map<TResourceId, SchedulerEvent<TAppointment, TResourceId>[]>();
+  const appointmentsByResource = new Map<
+    TResourceId,
+    SchedulerEvent<TAppointment, TResourceId>[]
+  >();
 
   for (const appointment of appointments) {
     const current = appointmentsByResource.get(appointment.resourceId) ?? [];
@@ -109,11 +114,13 @@ export function buildLaidOutByResource<
 
 export function buildAppointmentAppearanceByResource<
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
+  TResourceId extends SchedulerId,
 >(
   resources: TResource[],
   resourceAppointmentClassMap: Partial<Record<string, string>> | undefined,
-  getResourceAppointmentAppearance: ((resource: TResource) => SchedulerAppointmentAppearance | undefined) | undefined,
+  getResourceAppointmentAppearance:
+    | ((resource: TResource) => SchedulerAppointmentAppearance | undefined)
+    | undefined,
   appointmentColorTokenClassByResource: Map<TResourceId, string | undefined>,
   appointmentBgByResource: Map<TResourceId, string | undefined>
 ) {

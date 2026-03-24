@@ -1,7 +1,9 @@
 import { format } from "date-fns";
-import type { SchedulerAppointmentColorToken } from "../types/scheduler";
+
 import { STEP_MIN } from "../components/constants";
+
 import type { LaidOut, NameLike, TimeBlockLike } from "../types/internal";
+import type { SchedulerAppointmentColorToken } from "../types/scheduler";
 
 export function isNameLike(resource: unknown): resource is NameLike {
   if (!resource || typeof resource !== "object") {
@@ -29,7 +31,10 @@ export function fromInputDateValue(value: string): Date | null {
   return new Date(year, month - 1, day);
 }
 
-export const DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP: Record<SchedulerAppointmentColorToken, string> = {
+export const DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP: Record<
+  SchedulerAppointmentColorToken,
+  string
+> = {
   slate: "bg-slate-100 dark:bg-slate-900/40",
   gray: "bg-gray-100 dark:bg-gray-900/40",
   zinc: "bg-zinc-100 dark:bg-zinc-900/40",
@@ -51,7 +56,7 @@ export const DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP: Record<SchedulerAppointm
   purple: "bg-purple-100 dark:bg-purple-950/40",
   fuchsia: "bg-fuchsia-100 dark:bg-fuchsia-950/40",
   pink: "bg-pink-100 dark:bg-pink-950/40",
-  rose: "bg-rose-100 dark:bg-rose-950/40"
+  rose: "bg-rose-100 dark:bg-rose-950/40",
 };
 
 export function clamp(n: number, min: number, max: number) {

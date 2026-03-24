@@ -1,6 +1,9 @@
 import type { SchedulerAppointmentChangeArgs, SchedulerId } from "../types";
 
-export type ApplySchedulerAppointmentChangeOptions<TAppointment, TResourceId extends SchedulerId> = {
+export type ApplySchedulerAppointmentChangeOptions<
+  TAppointment,
+  TResourceId extends SchedulerId,
+> = {
   getId: (appointment: TAppointment) => SchedulerId;
   setResourceId: (appointment: TAppointment, resourceId: TResourceId) => TAppointment;
   setStart: (appointment: TAppointment, start: Date) => TAppointment;

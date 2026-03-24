@@ -16,7 +16,10 @@ export type LaidOut<T extends TimeBlockLike> = T & {
   lanes: number;
 };
 
-export type SchedulerLayoutAppointment<TAppointment, TResourceId extends SchedulerId> = SchedulerEvent<TAppointment, TResourceId> & {
+export type SchedulerLayoutAppointment<
+  TAppointment,
+  TResourceId extends SchedulerId,
+> = SchedulerEvent<TAppointment, TResourceId> & {
   lane: number;
   lanes: number;
 };

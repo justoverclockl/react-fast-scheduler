@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   addDays,
   addMonths,
@@ -9,14 +8,17 @@ import {
   isSameMonth,
   isToday,
   startOfMonth,
-  startOfWeek
+  startOfWeek,
 } from "date-fns";
+import * as React from "react";
+
 import { cn } from "../../lib/cn";
+
 import { Button } from "./button";
 
 export function Calendar({
   selected,
-  onSelect
+  onSelect,
 }: {
   selected?: Date;
   onSelect?: (date: Date) => void;
@@ -41,11 +43,21 @@ export function Calendar({
   return (
     <div className="w-72 rounded-md bg-popover">
       <div className="mb-2 flex items-center justify-between">
-        <Button variant="ghost" size="icon" aria-label="Previous month" onClick={() => setMonth(addMonths(month, -1))}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Previous month"
+          onClick={() => setMonth(addMonths(month, -1))}
+        >
           {"<"}
         </Button>
         <div className="text-sm font-medium">{format(month, "MMMM yyyy")}</div>
-        <Button variant="ghost" size="icon" aria-label="Next month" onClick={() => setMonth(addMonths(month, 1))}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Next month"
+          onClick={() => setMonth(addMonths(month, 1))}
+        >
           {">"}
         </Button>
       </div>
