@@ -1,14 +1,16 @@
 import * as React from "react";
-import { defaultRenderAppointment } from "../../defaultRenderAppointment";
+
 import { MIN_EVENT_MIN, PX_PER_MIN, RESOURCE_MIN_W, STEP_MIN, TOP_PAD } from "../../constants";
+import { defaultRenderAppointment } from "../../defaultRenderAppointment";
+
+import type { SchedulerLayoutAppointment } from "../../../types/internal";
 import type {
   BaseSchedulerResource,
   SchedulerAppointmentAppearance,
   SchedulerDragState,
   SchedulerEvent,
-  SchedulerId
+  SchedulerId,
 } from "../../../types/scheduler";
-import type { SchedulerLayoutAppointment } from "../../../types/internal";
 
 type SchedulerResourceColumnProps<TAppointment, TResourceId extends SchedulerId> = {
   resource: BaseSchedulerResource<TResourceId>;
@@ -27,8 +29,14 @@ type SchedulerResourceColumnProps<TAppointment, TResourceId extends SchedulerId>
     drag: SchedulerDragState<TResourceId>;
     suppressClickRef: React.RefObject<boolean>;
   }) => React.ReactNode;
-  onApptPointerDown: (event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => void;
-  onResizePointerDown: (event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => void;
+  onApptPointerDown: (
+    event: React.PointerEvent,
+    appointment: SchedulerEvent<TAppointment, TResourceId>
+  ) => void;
+  onResizePointerDown: (
+    event: React.PointerEvent,
+    appointment: SchedulerEvent<TAppointment, TResourceId>
+  ) => void;
   drag: SchedulerDragState<TResourceId>;
   suppressClickRef: React.RefObject<boolean>;
 };
@@ -45,7 +53,7 @@ export function ResourceCol<TAppointment, TResourceId extends SchedulerId>({
   onApptPointerDown,
   onResizePointerDown,
   drag,
-  suppressClickRef
+  suppressClickRef,
 }: SchedulerResourceColumnProps<TAppointment, TResourceId>) {
   return (
     <div className="rfs-col border-border bg-card" style={{ minWidth: RESOURCE_MIN_W, flex: 1 }}>
@@ -73,7 +81,10 @@ export function ResourceCol<TAppointment, TResourceId extends SchedulerId>({
         {appointments.map((appointment) => {
           const laneWidthPct = 100 / appointment.lanes;
           const top = TOP_PAD + appointment.startMin * PX_PER_MIN;
-          const height = Math.max(MIN_EVENT_MIN * PX_PER_MIN, (appointment.endMin - appointment.startMin) * PX_PER_MIN);
+          const height = Math.max(
+            MIN_EVENT_MIN * PX_PER_MIN,
+            (appointment.endMin - appointment.startMin) * PX_PER_MIN
+          );
           return (
             <div
               key={String(appointment.id)}
@@ -82,7 +93,7 @@ export function ResourceCol<TAppointment, TResourceId extends SchedulerId>({
                 top,
                 left: `${laneWidthPct * appointment.lane}%`,
                 width: `${laneWidthPct}%`,
-                height
+                height,
               }}
             >
               {(renderAppointment ?? defaultRenderAppointment)({
@@ -92,7 +103,7 @@ export function ResourceCol<TAppointment, TResourceId extends SchedulerId>({
                 appointmentAppearance,
                 appointmentBackgroundColor: appointmentBg,
                 drag,
-                suppressClickRef
+                suppressClickRef,
               })}
             </div>
           );

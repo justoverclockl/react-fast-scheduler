@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import type { DefaultRenderAppointmentProps } from "./types";
 import type { SchedulerId } from "../../types/scheduler";
 
@@ -7,18 +8,22 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
   onPointerDown,
   onResizePointerDown,
   appointmentAppearance,
-  appointmentBackgroundColor
+  appointmentBackgroundColor,
 }: DefaultRenderAppointmentProps<TAppointment, TResourceId>) {
   const rawMaybe = appointment.raw as { description?: unknown };
   const description = typeof rawMaybe.description === "string" ? rawMaybe.description : undefined;
-  const legacyClassName = typeof appointmentBackgroundColor === "string" ? appointmentBackgroundColor : undefined;
-  const backgroundClassName = appointmentAppearance?.className ?? legacyClassName ?? "bg-muted/40 dark:bg-muted/30";
+  const legacyClassName =
+    typeof appointmentBackgroundColor === "string" ? appointmentBackgroundColor : undefined;
+  const backgroundClassName =
+    appointmentAppearance?.className ?? legacyClassName ?? "bg-muted/40 dark:bg-muted/30";
   const className = `relative h-full cursor-grab overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground ${backgroundClassName}`;
 
   return (
     <div onPointerDown={onPointerDown} className={className}>
       <div className="text-xs font-semibold">{appointment.title}</div>
-      {description ? <div className="mt-1 text-[10px] font-medium text-muted-foreground">{description}</div> : null}
+      {description ? (
+        <div className="mt-1 text-[10px] font-medium text-muted-foreground">{description}</div>
+      ) : null}
       <div
         role="button"
         aria-label="Resize appointment"

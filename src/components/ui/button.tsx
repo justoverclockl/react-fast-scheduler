@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { cn } from "../../lib/cn";
 
 type ButtonVariant = "default" | "outline" | "ghost";
@@ -7,13 +8,13 @@ type ButtonSize = "default" | "sm" | "icon";
 const variantClasses: Record<ButtonVariant, string> = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90",
   outline: "border border-border bg-card text-foreground hover:bg-muted",
-  ghost: "text-foreground hover:bg-muted"
+  ghost: "text-foreground hover:bg-muted",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
   default: "h-9 px-4 py-2",
   sm: "h-8 px-3 text-xs",
-  icon: "h-8 w-8"
+  icon: "h-8 w-8",
 };
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {

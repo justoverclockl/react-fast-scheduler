@@ -47,7 +47,10 @@ export type SchedulerDragState<TResourceId extends SchedulerId> =
       endMin: number;
     };
 
-export type RenderSchedulerAppt<TAppointment, TResourceId extends SchedulerId> = SchedulerEvent<TAppointment, TResourceId>;
+export type RenderSchedulerAppt<TAppointment, TResourceId extends SchedulerId> = SchedulerEvent<
+  TAppointment,
+  TResourceId
+>;
 
 export type SchedulerAppointmentChangeArgs<TAppointment, TResourceId extends SchedulerId> = {
   kind: "move" | "resize";
@@ -81,7 +84,7 @@ export type SchedulerToolbarRenderArgs = {
 export type SchedulerProps<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
+  TResourceId extends SchedulerId,
 > = {
   resources: TResource[];
   appointments: TAppointment[];
@@ -94,7 +97,9 @@ export type SchedulerProps<
     start: Date;
     end: Date;
   }) => Promise<void> | void;
-  onAppointmentChange?: (args: SchedulerAppointmentChangeArgs<TAppointment, TResourceId>) => Promise<void> | void;
+  onAppointmentChange?: (
+    args: SchedulerAppointmentChangeArgs<TAppointment, TResourceId>
+  ) => Promise<void> | void;
   renderResourceHeader?: (resource: TResource) => React.ReactNode;
   renderAppointment?: (args: {
     appointment: SchedulerEvent<TAppointment, TResourceId> & { lane: number; lanes: number };
@@ -106,8 +111,12 @@ export type SchedulerProps<
     suppressClickRef: RefObject<boolean>;
   }) => React.ReactNode;
   resourceAppointmentClassMap?: SchedulerResourceClassMap;
-  getResourceAppointmentAppearance?: (resource: TResource) => SchedulerAppointmentAppearance | undefined;
-  getResourceAppointmentColorToken?: (resource: TResource) => SchedulerAppointmentColorToken | undefined;
+  getResourceAppointmentAppearance?: (
+    resource: TResource
+  ) => SchedulerAppointmentAppearance | undefined;
+  getResourceAppointmentColorToken?: (
+    resource: TResource
+  ) => SchedulerAppointmentColorToken | undefined;
   appointmentColorTokenClassMap?: Record<SchedulerAppointmentColorToken, string>;
   getResourceAppointmentBackground?: (resource: TResource) => string | undefined;
   renderToolbar?: (args: SchedulerToolbarRenderArgs) => React.ReactNode;

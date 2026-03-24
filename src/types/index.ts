@@ -10,5 +10,5 @@ export type {
   SchedulerEvent,
   SchedulerId,
   SchedulerToolbarRenderArgs,
-  SchedulerProps
+  SchedulerProps,
 } from "./scheduler";

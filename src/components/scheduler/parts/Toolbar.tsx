@@ -1,7 +1,9 @@
 import * as React from "react";
+
+import { shiftDays } from "../../../utils/scheduler-core.utils";
 import { defaultRenderDatePicker } from "../../defaultRenderDatePicker";
 import { defaultRenderToolbar } from "../../defaultRenderToolbar";
-import { shiftDays } from "../../../utils/scheduler-core.utils";
+
 import type { SchedulerToolbarRenderArgs } from "../../../types";
 
 type SchedulerToolbarProps = {
@@ -10,7 +12,10 @@ type SchedulerToolbarProps = {
   prevButtonLabel: React.ReactNode;
   nextButtonLabel: React.ReactNode;
   renderToolbar?: (args: SchedulerToolbarRenderArgs) => React.ReactNode;
-  renderDatePicker?: (args: { selectedDate: Date; onSelectedDateChange: (date: Date) => void }) => React.ReactNode;
+  renderDatePicker?: (args: {
+    selectedDate: Date;
+    onSelectedDateChange: (date: Date) => void;
+  }) => React.ReactNode;
 };
 
 export function Toolbar({
@@ -19,14 +24,27 @@ export function Toolbar({
   prevButtonLabel,
   nextButtonLabel,
   renderToolbar,
-  renderDatePicker
+  renderDatePicker,
 }: SchedulerToolbarProps) {
   const goToPreviousDay = () => onSelectedDateChange(shiftDays(selectedDate, -1));
   const goToNextDay = () => onSelectedDateChange(shiftDays(selectedDate, 1));
-  const defaultDatePicker = (renderDatePicker ?? defaultRenderDatePicker)({ selectedDate, onSelectedDateChange });
+  const defaultDatePicker = (renderDatePicker ?? defaultRenderDatePicker)({
+    selectedDate,
+    onSelectedDateChange,
+  });
 
   if (renderToolbar) {
-    return <>{renderToolbar({ selectedDate, onSelectedDateChange, goToPreviousDay, goToNextDay, defaultDatePicker })}</>;
+    return (
+      <>
+        {renderToolbar({
+          selectedDate,
+          onSelectedDateChange,
+          goToPreviousDay,
+          goToNextDay,
+          defaultDatePicker,
+        })}
+      </>
+    );
   }
 
   return (
@@ -38,7 +56,7 @@ export function Toolbar({
         goToNextDay,
         defaultDatePicker,
         prevButtonLabel,
-        nextButtonLabel
+        nextButtonLabel,
       })}
     </>
   );

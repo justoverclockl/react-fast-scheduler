@@ -35,7 +35,7 @@ type Appointment = {
 
 const initialStaff: Staff[] = [
   { id: 1, label: "Room A", firstName: "Anna", lastName: "Rossi" },
-  { id: 2, label: "Room B", firstName: "Luca", lastName: "Bianchi" }
+  { id: 2, label: "Room B", firstName: "Luca", lastName: "Bianchi" },
 ];
 
 const initialAppointments: Appointment[] = [
@@ -46,8 +46,8 @@ const initialAppointments: Appointment[] = [
     customerName: "Mario Rossi",
     title: "Consultation",
     start: "2026-03-20T09:00:00.000Z",
-    end: "2026-03-20T09:30:00.000Z"
-  }
+    end: "2026-03-20T09:30:00.000Z",
+  },
 ];
 
 export function SchedulerExample() {
@@ -67,20 +67,25 @@ export function SchedulerExample() {
         getResourceId: (a) => a.staffId,
         getStart: (a) => a.start,
         getEnd: (a) => a.end,
-        getTitle: (a) => `${a.customerName} - ${a.title}`
+        getTitle: (a) => `${a.customerName} - ${a.title}`,
       }}
       onAppointmentChange={async ({ appointment, next }) => {
         setAppointments((prev) =>
           prev.map((a) =>
             a.id === appointment.id
-              ? { ...a, staffId: next.resourceId, start: next.start.toISOString(), end: next.end.toISOString() }
+              ? {
+                  ...a,
+                  staffId: next.resourceId,
+                  start: next.start.toISOString(),
+                  end: next.end.toISOString(),
+                }
               : a
           )
         );
       }}
       resourceAppointmentClassMap={{
         "1": "bg-amber-100 dark:bg-amber-950/40",
-        "2": "bg-blue-100 dark:bg-blue-950/40"
+        "2": "bg-blue-100 dark:bg-blue-950/40",
       }}
       dayStart="09:00"
       dayEnd="18:00"
@@ -95,6 +100,7 @@ export function SchedulerExample() {
 `onAppointmentChange` is a simple callback: use it to update your state and run your own side effects.
 
 Main props you need to pass:
+
 - `resources`: your columns (staff, rooms, etc), each with at least `{ id, label }`.
 - `appointments`: raw items from your backend.
 - `adapter`: functions that map your raw appointment shape to scheduler fields.
@@ -118,7 +124,7 @@ Main props you need to pass:
   // ...other props
   resourceAppointmentClassMap={{
     "room-a": "bg-yellow-100 dark:bg-yellow-950/40",
-    "room-b": "bg-rose-100 dark:bg-rose-950/40"
+    "room-b": "bg-rose-100 dark:bg-rose-950/40",
   }}
 />
 ```
@@ -131,7 +137,7 @@ Main props you need to pass:
   getResourceAppointmentColorToken={(resource) => resource.category}
   appointmentColorTokenClassMap={{
     vip: "bg-yellow-100 dark:bg-yellow-950/40",
-    urgent: "bg-rose-100 dark:bg-rose-950/40"
+    urgent: "bg-rose-100 dark:bg-rose-950/40",
   }}
 />
 ```
@@ -141,7 +147,13 @@ Main props you need to pass:
 ```tsx
 <Scheduler
   // ...other props
-  renderAppointment={({ appointment, onPointerDown, onResizePointerDown, appointmentAppearance, appointmentBackgroundColor }) => (
+  renderAppointment={({
+    appointment,
+    onPointerDown,
+    onResizePointerDown,
+    appointmentAppearance,
+    appointmentBackgroundColor,
+  }) => (
     <div
       onPointerDown={onPointerDown}
       className={`relative h-full cursor-grab overflow-hidden rounded-md border border-slate-300 p-2 pb-5 ${
@@ -150,7 +162,9 @@ Main props you need to pass:
     >
       <div className="text-xs font-semibold">{appointment.title}</div>
       {appointment.raw.description ? (
-        <div className="mt-1 text-[10px] font-medium text-slate-500">{appointment.raw.description}</div>
+        <div className="mt-1 text-[10px] font-medium text-slate-500">
+          {appointment.raw.description}
+        </div>
       ) : null}
       <div
         role="button"
@@ -178,7 +192,11 @@ Main props you need to pass:
         <div className="text-xs text-muted-foreground">Team schedule</div>
       </div>
       <div className="flex items-center gap-2">
-        <button className="rounded-md border px-3 py-2 text-sm" type="button" onClick={goToPreviousDay}>
+        <button
+          className="rounded-md border px-3 py-2 text-sm"
+          type="button"
+          onClick={goToPreviousDay}
+        >
           Previous
         </button>
         {defaultDatePicker}
@@ -276,4 +294,4 @@ This repo uses [Changesets](https://github.com/changesets/changesets) and GitHub
 2. Merge to `main`
 3. The `Release` workflow opens/updates a release PR
 4. Merging that PR publishes to npm via npm Trusted Publishing and GitHub OIDC
-4. Merging that PR publishes to npm via npm Trusted Publishing and GitHub OIDC
+5. Merging that PR publishes to npm via npm Trusted Publishing and GitHub OIDC

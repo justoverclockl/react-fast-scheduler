@@ -1,18 +1,20 @@
 import * as React from "react";
-import type { BaseSchedulerResource, SchedulerId } from "../types/scheduler";
-import type { SchedulerPresentationData, UseSchedulerPresentationDataArgs } from "./types";
+
+import { DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP } from "../utils/scheduler-core.utils";
 import {
   applyDragToAppointments,
   buildAppointmentAppearanceByResource,
   buildLaidOutByResource,
-  buildResourceMap
+  buildResourceMap,
 } from "../utils/scheduler-data.utils";
-import { DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP } from "../utils/scheduler-core.utils";
+
+import type { SchedulerPresentationData, UseSchedulerPresentationDataArgs } from "./types";
+import type { BaseSchedulerResource, SchedulerId } from "../types/scheduler";
 
 export function useSchedulerPresentationData<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
+  TResourceId extends SchedulerId,
 >({
   appointmentColorTokenClassMap,
   dayStartAbs,
@@ -23,8 +25,12 @@ export function useSchedulerPresentationData<
   renderAppts,
   resourceAppointmentClassMap,
   resources,
-  selectedDate
-}: UseSchedulerPresentationDataArgs<TAppointment, TResource, TResourceId>): SchedulerPresentationData<TAppointment, TResourceId> {
+  selectedDate,
+}: UseSchedulerPresentationDataArgs<
+  TAppointment,
+  TResource,
+  TResourceId
+>): SchedulerPresentationData<TAppointment, TResourceId> {
   const effectiveAppts = React.useMemo(() => {
     return applyDragToAppointments(renderAppts, drag, selectedDate, dayStartAbs);
   }, [dayStartAbs, drag, renderAppts, selectedDate]);
@@ -42,7 +48,7 @@ export function useSchedulerPresentationData<
       fallback: undefined,
       getValue: getResourceAppointmentBackground,
       resources,
-      toKey: (resource) => resource.id
+      toKey: (resource) => resource.id,
     });
   }, [getResourceAppointmentBackground, resources]);
 
@@ -53,7 +59,7 @@ export function useSchedulerPresentationData<
 
     const mergedClassMap = {
       ...DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP,
-      ...(appointmentColorTokenClassMap ?? {})
+      ...(appointmentColorTokenClassMap ?? {}),
     };
 
     return buildResourceMap({
@@ -63,7 +69,7 @@ export function useSchedulerPresentationData<
         return token ? mergedClassMap[token] : undefined;
       },
       resources,
-      toKey: (resource) => resource.id
+      toKey: (resource) => resource.id,
     });
   }, [appointmentColorTokenClassMap, getResourceAppointmentColorToken, resources]);
 
@@ -80,13 +86,13 @@ export function useSchedulerPresentationData<
     appointmentColorTokenClassByResource,
     getResourceAppointmentAppearance,
     resourceAppointmentClassMap,
-    resources
+    resources,
   ]);
 
   return {
     appointmentAppearanceByResource,
     appointmentBgByResource,
     effectiveAppts,
-    laidOutByResource
+    laidOutByResource,
   };
 }

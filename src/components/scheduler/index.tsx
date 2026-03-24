@@ -1,14 +1,21 @@
 import * as React from "react";
-import type { BaseSchedulerResource, SchedulerId, SchedulerProps } from "../../types/scheduler";
+
 import { useSchedulerBaseData } from "../../hooks/useSchedulerBaseData";
 import { useSchedulerInteractions } from "../../hooks/useSchedulerInteractions";
 import { useSchedulerPresentationData } from "../../hooks/useSchedulerPresentationData";
-import { Toolbar } from "./parts/Toolbar";
-import { Header } from "./parts/Header";
-import { Gutter } from "./parts/Gutter";
-import { ResourceCol } from "./parts/ResourceCol";
 
-export function Scheduler<TAppointment, TResource extends BaseSchedulerResource<TResourceId>, TResourceId extends SchedulerId>({
+import { Gutter } from "./parts/Gutter";
+import { Header } from "./parts/Header";
+import { ResourceCol } from "./parts/ResourceCol";
+import { Toolbar } from "./parts/Toolbar";
+
+import type { BaseSchedulerResource, SchedulerId, SchedulerProps } from "../../types";
+
+export function Scheduler<
+  TAppointment,
+  TResource extends BaseSchedulerResource<TResourceId>,
+  TResourceId extends SchedulerId,
+>({
   resources,
   appointments,
   selectedDate,
@@ -28,16 +35,10 @@ export function Scheduler<TAppointment, TResource extends BaseSchedulerResource<
   prevButtonLabel = "Prev",
   nextButtonLabel = "Next",
   dayStart = "09:00",
-  dayEnd = "18:00"
+  dayEnd = "18:00",
 }: SchedulerProps<TAppointment, TResource, TResourceId>) {
-  const {
-    appointmentMap,
-    dayMinutes,
-    dayStartAbs,
-    gridHeight,
-    gridMinWidth,
-    renderAppts
-  } = useSchedulerBaseData({ adapter, appointments, dayEnd, dayStart, resources, selectedDate });
+  const { appointmentMap, dayMinutes, dayStartAbs, gridHeight, gridMinWidth, renderAppts } =
+    useSchedulerBaseData({ adapter, appointments, dayEnd, dayStart, resources, selectedDate });
 
   const {
     colRefs,
@@ -46,7 +47,7 @@ export function Scheduler<TAppointment, TResource extends BaseSchedulerResource<
     onGlobalPointerMove,
     onGlobalPointerUp,
     onResizePointerDown,
-    suppressClickRef
+    suppressClickRef,
   } = useSchedulerInteractions({
     appointmentMap,
     dayMinutes,
@@ -55,29 +56,28 @@ export function Scheduler<TAppointment, TResource extends BaseSchedulerResource<
     onPersistMoveResize,
     renderAppts,
     resources,
-    selectedDate
+    selectedDate,
   });
 
-  const {
-    appointmentAppearanceByResource,
-    appointmentBgByResource,
-    laidOutByResource
-  } = useSchedulerPresentationData({
-    appointmentColorTokenClassMap,
-    dayStartAbs,
-    drag,
-    getResourceAppointmentAppearance,
-    getResourceAppointmentBackground,
-    getResourceAppointmentColorToken,
-    renderAppts,
-    resourceAppointmentClassMap,
-    resources,
-    selectedDate
-  });
+  const { appointmentAppearanceByResource, appointmentBgByResource, laidOutByResource } =
+    useSchedulerPresentationData({
+      appointmentColorTokenClassMap,
+      dayStartAbs,
+      drag,
+      getResourceAppointmentAppearance,
+      getResourceAppointmentBackground,
+      getResourceAppointmentColorToken,
+      renderAppts,
+      resourceAppointmentClassMap,
+      resources,
+      selectedDate,
+    });
 
   return (
     <section
-      className={`rfs-root rounded-lg bg-background text-foreground ${drag.kind === "move" ? "rfs-root--drag-move" : ""} ${drag.kind === "resize" ? "rfs-root--drag-resize" : ""}`}
+      className={`rfs-root rounded-lg bg-background text-foreground ${
+        drag.kind === "move" ? "rfs-root--drag-move" : ""
+      } ${drag.kind === "resize" ? "rfs-root--drag-resize" : ""}`}
       onPointerMove={onGlobalPointerMove}
       onPointerUp={onGlobalPointerUp}
       onPointerCancel={onGlobalPointerUp}
@@ -115,7 +115,6 @@ export function Scheduler<TAppointment, TResource extends BaseSchedulerResource<
                 />
               ))}
             </div>
-
           </div>
         </div>
       </div>

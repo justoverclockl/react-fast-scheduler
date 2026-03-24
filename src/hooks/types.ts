@@ -1,13 +1,13 @@
-import type * as React from "react";
+import type { SchedulerLayoutAppointment } from "../types/internal";
 import type {
   BaseSchedulerResource,
   SchedulerAppointmentAppearance,
   SchedulerDragState,
   SchedulerEvent,
   SchedulerId,
-  SchedulerProps
+  SchedulerProps,
 } from "../types/scheduler";
-import type { SchedulerLayoutAppointment } from "../types/internal";
+import type * as React from "react";
 
 export type SchedulerMetrics = {
   dayStartAbs: number;
@@ -32,8 +32,11 @@ export type SchedulerPresentationData<TAppointment, TResourceId extends Schedule
 export type UseSchedulerBaseDataArgs<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
-> = Pick<SchedulerProps<TAppointment, TResource, TResourceId>, "adapter" | "appointments" | "resources" | "selectedDate" | "dayEnd" | "dayStart"> & {
+  TResourceId extends SchedulerId,
+> = Pick<
+  SchedulerProps<TAppointment, TResource, TResourceId>,
+  "adapter" | "appointments" | "resources" | "selectedDate" | "dayEnd" | "dayStart"
+> & {
   dayEnd?: string;
   dayStart?: string;
 };
@@ -41,8 +44,11 @@ export type UseSchedulerBaseDataArgs<
 export type UseSchedulerInteractionsArgs<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
-> = Pick<SchedulerProps<TAppointment, TResource, TResourceId>, "onAppointmentChange" | "onPersistMoveResize" | "resources" | "selectedDate"> & {
+  TResourceId extends SchedulerId,
+> = Pick<
+  SchedulerProps<TAppointment, TResource, TResourceId>,
+  "onAppointmentChange" | "onPersistMoveResize" | "resources" | "selectedDate"
+> & {
   appointmentMap: Map<SchedulerId, SchedulerEvent<TAppointment, TResourceId>>;
   dayMinutes: number;
   dayStartAbs: number;
@@ -52,7 +58,7 @@ export type UseSchedulerInteractionsArgs<
 export type UseSchedulerPresentationDataArgs<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
+  TResourceId extends SchedulerId,
 > = Pick<
   SchedulerProps<TAppointment, TResource, TResourceId>,
   | "appointmentColorTokenClassMap"
@@ -71,9 +77,15 @@ export type UseSchedulerPresentationDataArgs<
 export type SchedulerInteractions<TAppointment, TResourceId extends SchedulerId> = {
   colRefs: React.RefObject<Record<string, HTMLDivElement | null>>;
   drag: SchedulerDragState<TResourceId>;
-  onApptPointerDown: (event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => void;
+  onApptPointerDown: (
+    event: React.PointerEvent,
+    appointment: SchedulerEvent<TAppointment, TResourceId>
+  ) => void;
   onGlobalPointerMove: (event: React.PointerEvent<HTMLElement>) => void;
   onGlobalPointerUp: () => void;
-  onResizePointerDown: (event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => void;
+  onResizePointerDown: (
+    event: React.PointerEvent,
+    appointment: SchedulerEvent<TAppointment, TResourceId>
+  ) => void;
   suppressClickRef: React.RefObject<boolean>;
 };

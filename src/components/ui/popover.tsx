@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { cn } from "../../lib/cn";
 
 type PopoverContextValue = {
@@ -22,7 +23,7 @@ function usePopoverContext() {
 export function Popover({
   children,
   open: controlledOpen,
-  onOpenChange
+  onOpenChange,
 }: {
   children: React.ReactNode;
   open?: boolean;
@@ -80,7 +81,7 @@ export function Popover({
 
 export function PopoverTrigger({
   children,
-  asChild = false
+  asChild = false,
 }: {
   children: React.ReactNode;
   asChild?: boolean;
@@ -100,7 +101,7 @@ export function PopoverTrigger({
       onClick: (event: React.MouseEvent) => {
         child.props.onClick?.(event);
         setOpen((current) => !current);
-      }
+      },
     });
   }
 
@@ -119,7 +120,7 @@ export function PopoverTrigger({
 export function PopoverContent({
   children,
   className,
-  align = "start"
+  align = "start",
 }: {
   children: React.ReactNode;
   className?: string;

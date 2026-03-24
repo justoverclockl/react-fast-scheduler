@@ -10,7 +10,7 @@ export type {
   SchedulerEvent,
   SchedulerId,
   SchedulerToolbarRenderArgs,
-  SchedulerProps
+  SchedulerProps,
 } from "./types";
 export { Scheduler } from "./components/scheduler";
 export { applySchedulerAppointmentChange } from "./utils/scheduler-appointment-change.utils";

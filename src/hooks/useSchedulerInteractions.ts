@@ -1,13 +1,20 @@
 import * as React from "react";
+
 import { MIN_EVENT_MIN, PX_PER_MIN, TOP_PAD } from "../components/constants";
-import type { BaseSchedulerResource, SchedulerDragState, SchedulerEvent, SchedulerId } from "../types/scheduler";
-import type { SchedulerInteractions, UseSchedulerInteractionsArgs } from "./types";
 import { clamp, dateAtMinute, overlaps, snap } from "../utils/scheduler-core.utils";
+
+import type { SchedulerInteractions, UseSchedulerInteractionsArgs } from "./types";
+import type {
+  BaseSchedulerResource,
+  SchedulerDragState,
+  SchedulerEvent,
+  SchedulerId,
+} from "../types/scheduler";
 
 export function useSchedulerInteractions<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
-  TResourceId extends SchedulerId
+  TResourceId extends SchedulerId,
 >({
   appointmentMap,
   dayMinutes,
@@ -16,8 +23,11 @@ export function useSchedulerInteractions<
   onPersistMoveResize,
   renderAppts,
   resources,
-  selectedDate
-}: UseSchedulerInteractionsArgs<TAppointment, TResource, TResourceId>): SchedulerInteractions<TAppointment, TResourceId> {
+  selectedDate,
+}: UseSchedulerInteractionsArgs<TAppointment, TResource, TResourceId>): SchedulerInteractions<
+  TAppointment,
+  TResourceId
+> {
   const [drag, setDrag] = React.useState<SchedulerDragState<TResourceId>>({ kind: "none" });
   const colRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
   const suppressClickRef = React.useRef(false);
@@ -56,8 +66,12 @@ export function useSchedulerInteractions<
 
   const hasOverlap = React.useCallback(
     (appointmentId: SchedulerId, resourceId: TResourceId, startMin: number, endMin: number) => {
-      const events = renderAppts.filter((appointment) => appointment.resourceId === resourceId && appointment.id !== appointmentId);
-      return events.some((appointment) => overlaps(appointment, { id: appointmentId, startMin, endMin }));
+      const events = renderAppts.filter(
+        (appointment) => appointment.resourceId === resourceId && appointment.id !== appointmentId
+      );
+      return events.some((appointment) =>
+        overlaps(appointment, { id: appointmentId, startMin, endMin })
+      );
     },
     [renderAppts]
   );
@@ -76,7 +90,7 @@ export function useSchedulerInteractions<
       const next = {
         resourceId: state.resourceId,
         start: dateAtMinute(selectedDate, dayStartAbs, state.startMin),
-        end: dateAtMinute(selectedDate, dayStartAbs, state.endMin)
+        end: dateAtMinute(selectedDate, dayStartAbs, state.endMin),
       };
 
       if (onAppointmentChange) {
@@ -86,9 +100,9 @@ export function useSchedulerInteractions<
           previous: {
             resourceId: target.resourceId,
             start: target.start,
-            end: target.end
+            end: target.end,
           },
-          next
+          next,
         });
         return;
       }
@@ -98,11 +112,18 @@ export function useSchedulerInteractions<
           appointment: target.raw,
           resourceId: next.resourceId,
           start: next.start,
-          end: next.end
+          end: next.end,
         });
       }
     },
-    [appointmentMap, dayStartAbs, hasOverlap, onAppointmentChange, onPersistMoveResize, selectedDate]
+    [
+      appointmentMap,
+      dayStartAbs,
+      hasOverlap,
+      onAppointmentChange,
+      onPersistMoveResize,
+      selectedDate,
+    ]
   );
 
   const onApptPointerDown = React.useCallback(
@@ -122,28 +143,31 @@ export function useSchedulerInteractions<
         durationMin: Math.max(MIN_EVENT_MIN, appointment.endMin - appointment.startMin),
         offsetMin: pointerMin - appointment.startMin,
         startMin: appointment.startMin,
-        endMin: appointment.endMin
+        endMin: appointment.endMin,
       });
     },
     [pointerToMin]
   );
 
-  const onResizePointerDown = React.useCallback((event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => {
-    if (event.button !== 0) {
-      return;
-    }
+  const onResizePointerDown = React.useCallback(
+    (event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => {
+      if (event.button !== 0) {
+        return;
+      }
 
-    event.stopPropagation();
-    suppressClickRef.current = false;
-    setDrag({
-      kind: "resize",
-      appointmentId: appointment.id,
-      pointerId: event.pointerId,
-      resourceId: appointment.resourceId,
-      startMin: appointment.startMin,
-      endMin: appointment.endMin
-    });
-  }, []);
+      event.stopPropagation();
+      suppressClickRef.current = false;
+      setDrag({
+        kind: "resize",
+        appointmentId: appointment.id,
+        pointerId: event.pointerId,
+        resourceId: appointment.resourceId,
+        startMin: appointment.startMin,
+        endMin: appointment.endMin,
+      });
+    },
+    []
+  );
 
   const onGlobalPointerMove = React.useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
@@ -158,13 +182,17 @@ export function useSchedulerInteractions<
         const nextStartMin = clamp(snap(rawStart), 0, dayMinutes - drag.durationMin);
         const nextEndMin = nextStartMin + drag.durationMin;
 
-        if (nextStartMin !== drag.startMin || nextEndMin !== drag.endMin || nextResourceId !== drag.resourceId) {
+        if (
+          nextStartMin !== drag.startMin ||
+          nextEndMin !== drag.endMin ||
+          nextResourceId !== drag.resourceId
+        ) {
           suppressClickRef.current = true;
           setDrag({
             ...drag,
             resourceId: nextResourceId,
             startMin: nextStartMin,
-            endMin: nextEndMin
+            endMin: nextEndMin,
           });
         }
         return;
@@ -176,7 +204,7 @@ export function useSchedulerInteractions<
         suppressClickRef.current = true;
         setDrag({
           ...drag,
-          endMin: nextEndMin
+          endMin: nextEndMin,
         });
       }
     },
@@ -202,6 +230,6 @@ export function useSchedulerInteractions<
     onGlobalPointerMove,
     onGlobalPointerUp,
     onResizePointerDown,
-    suppressClickRef
+    suppressClickRef,
   };
 }
