@@ -1,11 +1,11 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 
+import { Scheduler } from "../src";
+import "../src/global.css";
 import { Button } from "../src/components/ui/button";
 import { Calendar } from "../src/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../src/components/ui/popover";
-import { Scheduler } from "../src";
-import "../src/global.css";
 
 import { createTodayAppointments, resources } from "./const";
 import "./styles.css";

@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { ResourceColInner } from "./ResourceColInner";
 
 export const ResourceCol = React.memo(ResourceColInner, (prev, next) => {
