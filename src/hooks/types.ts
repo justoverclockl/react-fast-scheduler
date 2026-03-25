@@ -1,4 +1,4 @@
-import type { SchedulerLayoutAppointment } from "../types/internal";
+import type { SchedulerLayoutAppointment } from "@rfs-types/internal";
 import type {
   BaseSchedulerResource,
   SchedulerAppointmentAppearance,
@@ -6,7 +6,7 @@ import type {
   SchedulerEvent,
   SchedulerId,
   SchedulerProps,
-} from "../types/scheduler";
+} from "@rfs-types/scheduler";
 import type * as React from "react";
 
 export type SchedulerMetrics = {

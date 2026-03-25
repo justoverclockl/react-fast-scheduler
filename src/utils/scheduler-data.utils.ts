@@ -10,14 +10,14 @@ import type {
   BuildResourceMapOptions,
   NormalizeAppointmentsArgs,
   SchedulerLayoutAppointment,
-} from "../types/internal";
+} from "@rfs-types/internal";
 import type {
   BaseSchedulerResource,
   SchedulerAppointmentAppearance,
   SchedulerDragState,
   SchedulerEvent,
   SchedulerId,
-} from "../types/scheduler";
+} from "@rfs-types/scheduler";
 
 export function buildResourceMap<TResource, TResourceId extends SchedulerId, TValue>({
   fallback,

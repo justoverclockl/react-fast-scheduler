@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import type { DefaultRenderAppointmentProps } from "./types";
-import type { SchedulerId } from "../../types/scheduler";
+import type { SchedulerId } from "@rfs-types/scheduler";
 
 export function defaultRenderAppointment<TAppointment, TResourceId extends SchedulerId>({
   appointment,
@@ -19,7 +19,10 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
   const className = `relative h-full cursor-grab overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground ${backgroundClassName}`;
 
   return (
-    <div onPointerDown={onPointerDown} className={className}>
+    <div
+      onPointerDown={onPointerDown}
+      className={className}
+    >
       <div className="text-xs font-semibold">{appointment.title}</div>
       {description ? (
         <div className="mt-1 text-[10px] font-medium text-muted-foreground">{description}</div>

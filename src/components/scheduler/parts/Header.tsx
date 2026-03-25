@@ -1,10 +1,10 @@
+
+import { GUTTER_W, RESOURCE_MIN_W } from "@components/constants";
+import { defaultRenderResourceHeader } from "@components/defaultRenderResourceHeader";
+import { fullName, isNameLike } from "@utils/scheduler-core.utils";
 import * as React from "react";
 
-import { fullName, isNameLike } from "../../../utils/scheduler-core.utils";
-import { GUTTER_W, RESOURCE_MIN_W } from "../../constants";
-import { defaultRenderResourceHeader } from "../../defaultRenderResourceHeader";
-
-import type { BaseSchedulerResource, SchedulerId } from "../../../types/scheduler";
+import type { BaseSchedulerResource, SchedulerId } from "@rfs-types/scheduler";
 
 type SchedulerHeaderProps<
   TResource extends BaseSchedulerResource<TResourceId>,
@@ -20,7 +20,10 @@ export function Header<
 >({ resources, renderResourceHeader }: SchedulerHeaderProps<TResource, TResourceId>) {
   return (
     <div className="rfs-header border-border bg-card">
-      <div className="rfs-gutter border-border" style={{ width: GUTTER_W }} />
+      <div
+        className="rfs-gutter border-border"
+        style={{ width: GUTTER_W }}
+      />
       {resources.map((resource) => (
         <div
           key={String(resource.id)}

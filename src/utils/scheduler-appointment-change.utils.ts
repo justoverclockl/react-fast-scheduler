@@ -1,4 +1,4 @@
-import type { SchedulerAppointmentChangeArgs, SchedulerId } from "../types";
+import type { SchedulerAppointmentChangeArgs, SchedulerId } from "@rfs-types";
 
 export type ApplySchedulerAppointmentChangeOptions<
   TAppointment,
