@@ -2,7 +2,7 @@
 
 A lightweight React scheduling library scaffold with CI/CD publishing.
 
-![img.png](https://bg-so-1.zippyimage.com/2026/03/25/71451a2e2aa173eaa36caec5ac4a6e84.png)
+![img.gif](https://res.cloudinary.com/dt74zb1rv/image/upload/v1774457086/Video_del_2026-03-25_17-35-51_kuflee.gif)
 
 ## Install
 
