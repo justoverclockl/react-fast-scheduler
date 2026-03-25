@@ -1,16 +1,16 @@
-import * as React from "react";
 
-import { defaultRenderAppointment } from "../defaultRenderAppointment";
-import { useSchedulerBaseData } from "../../hooks/useSchedulerBaseData";
-import { useSchedulerInteractions } from "../../hooks/useSchedulerInteractions";
-import { useSchedulerPresentationData } from "../../hooks/useSchedulerPresentationData";
+import { defaultRenderAppointment } from "@components/defaultRenderAppointment";
+import { useSchedulerBaseData } from "@hooks/useSchedulerBaseData";
+import { useSchedulerInteractions } from "@hooks/useSchedulerInteractions";
+import { useSchedulerPresentationData } from "@hooks/useSchedulerPresentationData";
+import * as React from "react";
 
 import { Gutter } from "./parts/Gutter";
 import { Header } from "./parts/Header";
 import { ResourceCol } from "./parts/ResourceCol";
 import { Toolbar } from "./parts/Toolbar";
 
-import type { BaseSchedulerResource, SchedulerId, SchedulerProps } from "../../types";
+import type { BaseSchedulerResource, SchedulerId, SchedulerProps } from "@rfs-types";
 
 const IDLE_DRAG = { kind: "none" } as const;
 
@@ -122,9 +122,16 @@ export function Scheduler<
 
       <div className="rfs-shell border-border bg-card">
         <div style={{ minWidth: gridMinWidth }}>
-          <Header resources={resources} renderResourceHeader={renderResourceHeader} />
+          <Header
+            resources={resources}
+            renderResourceHeader={renderResourceHeader}
+          />
           <div className="rfs-body">
-            <Gutter dayMinutes={dayMinutes} dayStartAbs={dayStartAbs} gridHeight={gridHeight} />
+            <Gutter
+              dayMinutes={dayMinutes}
+              dayStartAbs={dayStartAbs}
+              gridHeight={gridHeight}
+            />
             <div className="rfs-grid">
               {resources.map((resource) => (
                 <ResourceCol

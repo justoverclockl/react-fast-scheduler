@@ -56,6 +56,18 @@ export default defineConfig([
           "newlines-between": "always",
         },
       ],
+      "@stylistic/jsx-closing-bracket-location": ["error", "tag-aligned"],
+      "@stylistic/jsx-first-prop-new-line": ["error", "multiprop"],
+      "@stylistic/jsx-indent-props": ["error", 2],
+      "@stylistic/jsx-max-props-per-line": [
+        "error",
+        {
+          maximum: {
+            multi: 1,
+            single: 1,
+          },
+        },
+      ],
       "max-depth": ["error", 4],
       "max-lines": [
         "error",

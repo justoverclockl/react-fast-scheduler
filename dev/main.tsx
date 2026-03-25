@@ -106,20 +106,20 @@ function App() {
         }) => (
           <div
             onPointerDown={onPointerDown}
-            className={`relative h-full cursor-grab overflow-hidden rounded-md border border-slate-300 p-2 pb-5 shadow-sm active:cursor-grabbing ${
-              appointmentBackgroundColor ?? "bg-white"
+            className={`relative h-full cursor-grab overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground shadow-sm active:cursor-grabbing ${
+              appointmentBackgroundColor ?? "bg-card"
             }`}
           >
             <div className="text-xs font-semibold leading-tight">{appointment.title}</div>
             {appointment.raw.description ? (
-              <div className="mt-1 text-[10px] font-medium tracking-wide text-slate-500">
+              <div className="mt-1 text-[10px] font-medium tracking-wide text-muted-foreground">
                 {appointment.raw.description}
               </div>
             ) : null}
             <div
               role="button"
               aria-label="Resize appointment"
-              className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-slate-300/90 hover:bg-slate-400"
+              className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-border/90 transition-colors hover:bg-border"
               onPointerDown={(event) => {
                 event.stopPropagation();
                 onResizePointerDown(event);

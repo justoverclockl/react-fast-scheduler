@@ -1,16 +1,16 @@
-import * as React from "react";
 
-import { DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP } from "../utils/scheduler-core.utils";
+import { DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP } from "@utils/scheduler-core.utils";
 import {
   buildAppointmentAppearanceByResource,
   buildLaidOutAppointments,
   buildLaidOutByResource,
   buildPresentationAppointments,
   buildResourceMap,
-} from "../utils/scheduler-data.utils";
+} from "@utils/scheduler-data.utils";
+import * as React from "react";
 
 import type { SchedulerPresentationData, UseSchedulerPresentationDataArgs } from "./types";
-import type { BaseSchedulerResource, SchedulerId } from "../types/scheduler";
+import type { BaseSchedulerResource, SchedulerId } from "@rfs-types/scheduler";
 
 export function useSchedulerPresentationData<
   TAppointment,

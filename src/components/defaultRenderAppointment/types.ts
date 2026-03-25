@@ -3,7 +3,7 @@ import type {
   SchedulerDragState,
   SchedulerId,
   SchedulerPresentationAppointment,
-} from "../../types/scheduler";
+} from "@rfs-types/scheduler";
 import type * as React from "react";
 import type { RefObject } from "react";
 

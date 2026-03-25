@@ -1,6 +1,5 @@
+import { GUTTER_W, PX_PER_MIN, TOP_PAD } from "@components/constants";
 import * as React from "react";
-
-import { GUTTER_W, PX_PER_MIN, TOP_PAD } from "../../constants";
 
 type SchedulerGutterProps = {
   dayMinutes: number;

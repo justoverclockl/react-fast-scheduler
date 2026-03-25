@@ -1,11 +1,11 @@
+
+import { BOTTOM_PAD, GUTTER_W, PX_PER_MIN, RESOURCE_MIN_W, TOP_PAD } from "@components/constants";
+import { dayISO, parseHHMM } from "@utils/scheduler-core.utils";
+import { buildAppointmentMap, normalizeAppointments } from "@utils/scheduler-data.utils";
 import * as React from "react";
 
-import { BOTTOM_PAD, GUTTER_W, PX_PER_MIN, RESOURCE_MIN_W, TOP_PAD } from "../components/constants";
-import { dayISO, parseHHMM } from "../utils/scheduler-core.utils";
-import { buildAppointmentMap, normalizeAppointments } from "../utils/scheduler-data.utils";
-
 import type { SchedulerBaseData, UseSchedulerBaseDataArgs } from "./types";
-import type { BaseSchedulerResource, SchedulerId } from "../types/scheduler";
+import type { BaseSchedulerResource, SchedulerId } from "@rfs-types/scheduler";
 
 export function useSchedulerBaseData<
   TAppointment,

@@ -1,10 +1,10 @@
+
+import { defaultRenderDatePicker } from "@components/defaultRenderDatePicker";
+import { defaultRenderToolbar } from "@components/defaultRenderToolbar";
+import { shiftDays } from "@utils/scheduler-core.utils";
 import * as React from "react";
 
-import { shiftDays } from "../../../utils/scheduler-core.utils";
-import { defaultRenderDatePicker } from "../../defaultRenderDatePicker";
-import { defaultRenderToolbar } from "../../defaultRenderToolbar";
-
-import type { SchedulerToolbarRenderArgs } from "../../../types";
+import type { SchedulerToolbarRenderArgs } from "@rfs-types";
 
 type SchedulerToolbarProps = {
   selectedDate: Date;

@@ -17,7 +17,7 @@ import type {
   SchedulerDragState,
   SchedulerId,
   SchedulerPresentationAppointment,
-} from "../types/scheduler";
+} from "@rfs-types/scheduler";
 
 export function buildResourceMap<TResource, TResourceId extends SchedulerId, TValue>({
   fallback,

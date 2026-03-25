@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import type { DefaultRenderResourceHeaderProps } from "./types";
-import type { BaseSchedulerResource, SchedulerId } from "../../types/scheduler";
+import type { BaseSchedulerResource, SchedulerId } from "@rfs-types/scheduler";
 
 export function defaultRenderResourceHeader<
   TResource extends BaseSchedulerResource<TResourceId>,
