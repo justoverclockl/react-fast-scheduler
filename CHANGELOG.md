@@ -1,5 +1,19 @@
 # react-fast-scheduler
 
+## 2.2.0
+
+### Minor Changes
+
+- [#21](https://github.com/justoverclockl/react-fast-scheduler/pull/21) [`fbcef4a`](https://github.com/justoverclockl/react-fast-scheduler/commit/fbcef4a37a017d84dd23f365014b998ebb4daa5d) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Add more formatting rules with related CI to push formatted code. Splitted also the grid into smaller components (SlotLine and HourLine). Add alias for all paths.
+
+- [#23](https://github.com/justoverclockl/react-fast-scheduler/pull/23) [`82dd115`](https://github.com/justoverclockl/react-fast-scheduler/commit/82dd115af8f49b387121015dc8e5b54add02c1ba) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Ghost card dragging implemented, rendering optimizations for large appointments dataset, fixes and improvements. Updated docs.
+
+### Patch Changes
+
+- [#17](https://github.com/justoverclockl/react-fast-scheduler/pull/17) [`2718d57`](https://github.com/justoverclockl/react-fast-scheduler/commit/2718d570c28f65e08cf0fc0ba9ca71a920519277) Thanks [@MDub3y](https://github.com/MDub3y)! - Refactor the scheduler internals by extracting toolbar, header, gutter, and resource column components, and move internal scheduler types into a dedicated internal types module. This change does not alter the public API.
+
+- [#19](https://github.com/justoverclockl/react-fast-scheduler/pull/19) [`fef0231`](https://github.com/justoverclockl/react-fast-scheduler/commit/fef023191b924e0eec9f38c1465648f9a5355fae) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Enforce code quality rules for development and add a CI workflow
+
 ## 2.1.1
 
 ### Patch Changes
