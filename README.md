@@ -13,7 +13,7 @@ npm i @marco.colia/react-fast-scheduler
 ## Usage
 
 ```tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Scheduler } from "@marco.colia/react-fast-scheduler";
 import "@marco.colia/react-fast-scheduler/styles.css";
 import type { BaseSchedulerResource } from "@marco.colia/react-fast-scheduler";
@@ -33,30 +33,70 @@ type Appointment = {
   end: string; // ISO string
 };
 
-const initialStaff: Staff[] = [
-  { id: 1, label: "Room A", firstName: "Anna", lastName: "Rossi" },
-  { id: 2, label: "Room B", firstName: "Luca", lastName: "Bianchi" },
-];
-
-const initialAppointments: Appointment[] = [
-  {
-    id: 100,
-    staffId: 1,
-    description: "First consultation",
-    customerName: "Mario Rossi",
-    title: "Consultation",
-    start: "2026-03-20T09:00:00.000Z",
-    end: "2026-03-20T09:30:00.000Z",
-  },
-];
-
 export function SchedulerExample() {
+  const [staff, setStaff] = useState<Staff[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date("2026-03-20T00:00:00.000Z"));
-  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  const loadStaff = async () => {
+    const response = await fetch("/api/staff");
+    const data = (await response.json()) as Staff[];
+    setStaff(data);
+  };
+
+  const loadAppointments = async (date: Date) => {
+    const isoDate = date.toISOString().slice(0, 10);
+    const response = await fetch(`/api/appointments?date=${isoDate}`);
+    const data = (await response.json()) as Appointment[];
+    setAppointments(data);
+  };
+
+  const persistAppointmentChange = async (appointmentId: number, next: Appointment) => {
+    await fetch(`/api/appointments/${appointmentId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    });
+  };
+
+  const handleAppointmentChange = async ({ appointment, previous, next }) => {
+    const nextAppointment = {
+      ...appointment,
+      staffId: next.resourceId,
+      start: next.start.toISOString(),
+      end: next.end.toISOString(),
+    };
+
+    try {
+      await persistAppointmentChange(appointment.id, nextAppointment);
+      await loadAppointments(selectedDate);
+    } catch {
+      setAppointments((current) =>
+        current.map((item) =>
+          item.id === appointment.id
+            ? {
+                ...item,
+                staffId: previous.resourceId,
+                start: previous.start.toISOString(),
+                end: previous.end.toISOString(),
+              }
+            : item
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    void loadStaff();
+  }, []);
+
+  useEffect(() => {
+    void loadAppointments(selectedDate);
+  }, [selectedDate]);
 
   return (
     <Scheduler<Appointment, Staff, number>
-      resources={initialStaff}
+      resources={staff}
       appointments={appointments}
       selectedDate={selectedDate}
       onSelectedDateChange={setSelectedDate}
@@ -69,20 +109,7 @@ export function SchedulerExample() {
         getEnd: (a) => a.end,
         getTitle: (a) => `${a.customerName} - ${a.title}`,
       }}
-      onAppointmentChange={async ({ appointment, next }) => {
-        setAppointments((prev) =>
-          prev.map((a) =>
-            a.id === appointment.id
-              ? {
-                  ...a,
-                  staffId: next.resourceId,
-                  start: next.start.toISOString(),
-                  end: next.end.toISOString(),
-                }
-              : a
-          )
-        );
-      }}
+      onAppointmentChange={handleAppointmentChange}
       resourceAppointmentClassMap={{
         "1": "bg-amber-100 dark:bg-amber-950/40",
         "2": "bg-blue-100 dark:bg-blue-950/40",
@@ -98,7 +125,7 @@ export function SchedulerExample() {
 During move drag, the scheduler keeps the original card in place and renders a floating ghost preview by default.
 `renderToolbar` is optional. If you omit it, the scheduler uses a built-in shadcn-style toolbar with prev/next buttons and a calendar popover date picker.
 `renderDatePicker` is optional. If you omit it, the default toolbar uses the built-in calendar popover date picker.
-`onAppointmentChange` is a simple callback: use it to update your state and run your own side effects.
+`onAppointmentChange` is the main integration point for state updates and API persistence.
 
 Main props you need to pass:
 
