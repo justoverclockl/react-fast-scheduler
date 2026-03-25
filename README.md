@@ -2,7 +2,7 @@
 
 A lightweight React scheduling library scaffold with CI/CD publishing.
 
-![img.png](https://bg-so-1.zippyimage.com/2026/03/20/9f3bd8a7a76d94f6e110aa0a0bef11d3.png)
+![img.gif](https://res.cloudinary.com/dt74zb1rv/image/upload/v1774457086/Video_del_2026-03-25_17-35-51_kuflee.gif)
 
 ## Install
 
@@ -13,7 +13,7 @@ npm i @marco.colia/react-fast-scheduler
 ## Usage
 
 ```tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Scheduler } from "@marco.colia/react-fast-scheduler";
 import "@marco.colia/react-fast-scheduler/styles.css";
 import type { BaseSchedulerResource } from "@marco.colia/react-fast-scheduler";
@@ -33,30 +33,70 @@ type Appointment = {
   end: string; // ISO string
 };
 
-const initialStaff: Staff[] = [
-  { id: 1, label: "Room A", firstName: "Anna", lastName: "Rossi" },
-  { id: 2, label: "Room B", firstName: "Luca", lastName: "Bianchi" },
-];
-
-const initialAppointments: Appointment[] = [
-  {
-    id: 100,
-    staffId: 1,
-    description: "First consultation",
-    customerName: "Mario Rossi",
-    title: "Consultation",
-    start: "2026-03-20T09:00:00.000Z",
-    end: "2026-03-20T09:30:00.000Z",
-  },
-];
-
 export function SchedulerExample() {
+  const [staff, setStaff] = useState<Staff[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date("2026-03-20T00:00:00.000Z"));
-  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  const loadStaff = async () => {
+    const response = await fetch("/api/staff");
+    const data = (await response.json()) as Staff[];
+    setStaff(data);
+  };
+
+  const loadAppointments = async (date: Date) => {
+    const isoDate = date.toISOString().slice(0, 10);
+    const response = await fetch(`/api/appointments?date=${isoDate}`);
+    const data = (await response.json()) as Appointment[];
+    setAppointments(data);
+  };
+
+  const persistAppointmentChange = async (appointmentId: number, next: Appointment) => {
+    await fetch(`/api/appointments/${appointmentId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    });
+  };
+
+  const handleAppointmentChange = async ({ appointment, previous, next }) => {
+    const nextAppointment = {
+      ...appointment,
+      staffId: next.resourceId,
+      start: next.start.toISOString(),
+      end: next.end.toISOString(),
+    };
+
+    try {
+      await persistAppointmentChange(appointment.id, nextAppointment);
+      await loadAppointments(selectedDate);
+    } catch {
+      setAppointments((current) =>
+        current.map((item) =>
+          item.id === appointment.id
+            ? {
+                ...item,
+                staffId: previous.resourceId,
+                start: previous.start.toISOString(),
+                end: previous.end.toISOString(),
+              }
+            : item
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    void loadStaff();
+  }, []);
+
+  useEffect(() => {
+    void loadAppointments(selectedDate);
+  }, [selectedDate]);
 
   return (
     <Scheduler<Appointment, Staff, number>
-      resources={initialStaff}
+      resources={staff}
       appointments={appointments}
       selectedDate={selectedDate}
       onSelectedDateChange={setSelectedDate}
@@ -69,20 +109,7 @@ export function SchedulerExample() {
         getEnd: (a) => a.end,
         getTitle: (a) => `${a.customerName} - ${a.title}`,
       }}
-      onAppointmentChange={async ({ appointment, next }) => {
-        setAppointments((prev) =>
-          prev.map((a) =>
-            a.id === appointment.id
-              ? {
-                  ...a,
-                  staffId: next.resourceId,
-                  start: next.start.toISOString(),
-                  end: next.end.toISOString(),
-                }
-              : a
-          )
-        );
-      }}
+      onAppointmentChange={handleAppointmentChange}
       resourceAppointmentClassMap={{
         "1": "bg-amber-100 dark:bg-amber-950/40",
         "2": "bg-blue-100 dark:bg-blue-950/40",
@@ -95,9 +122,10 @@ export function SchedulerExample() {
 ```
 
 `renderAppointment` is optional. If you omit it, the scheduler uses the built-in appointment card with light/dark mode support.
+During move drag, the scheduler keeps the original card in place and renders a floating ghost preview by default.
 `renderToolbar` is optional. If you omit it, the scheduler uses a built-in shadcn-style toolbar with prev/next buttons and a calendar popover date picker.
 `renderDatePicker` is optional. If you omit it, the default toolbar uses the built-in calendar popover date picker.
-`onAppointmentChange` is a simple callback: use it to update your state and run your own side effects.
+`onAppointmentChange` is the main integration point for state updates and API persistence.
 
 Main props you need to pass:
 
@@ -116,6 +144,15 @@ Main props you need to pass:
 - `renderDatePicker`: optional render hook for the date picker slot used by the default toolbar.
 - `renderResourceHeader`: optional render hook for resource column headers.
 - `renderAppointment`: optional render hook to fully customize appointment cards.
+
+If you provide `renderAppointment`, the `appointment` argument also includes:
+
+- `visualState`: `"normal" | "ghost" | "dragging"` so custom renderers can react to drag previews.
+- `renderKey`: an internal stable render key for presentation-layer rendering.
+
+The `renderAppointment` args also include:
+
+- `isDropInvalid`: `true` while the current drag position overlaps another appointment, so custom renderers can show invalid drop feedback.
 
 ### Resource classes by id (recommended)
 
@@ -149,6 +186,7 @@ Main props you need to pass:
   // ...other props
   renderAppointment={({
     appointment,
+    isDropInvalid,
     onPointerDown,
     onResizePointerDown,
     appointmentAppearance,
@@ -156,10 +194,25 @@ Main props you need to pass:
   }) => (
     <div
       onPointerDown={onPointerDown}
-      className={`relative h-full cursor-grab overflow-hidden rounded-md border border-slate-300 p-2 pb-5 ${
-        appointmentAppearance?.className ?? appointmentBackgroundColor ?? "bg-slate-100"
+      className={`relative h-full overflow-hidden rounded-md border p-2 pb-5 ${
+        appointment.visualState === "ghost"
+          ? "cursor-grab border-dashed opacity-55"
+          : appointment.visualState === "dragging"
+            ? "cursor-grabbing opacity-55"
+            : "cursor-grab"
+      } ${
+        isDropInvalid
+          ? "border-red-500 bg-red-100/80 text-red-950 ring-1 ring-red-500/60"
+          : `border-slate-300 ${
+              appointmentAppearance?.className ?? appointmentBackgroundColor ?? "bg-slate-100"
+            }`
       }`}
     >
+      {isDropInvalid ? (
+        <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+          X
+        </div>
+      ) : null}
       <div className="text-xs font-semibold">{appointment.title}</div>
       {appointment.raw.description ? (
         <div className="mt-1 text-[10px] font-medium text-slate-500">
@@ -170,6 +223,9 @@ Main props you need to pass:
         role="button"
         aria-label="Resize appointment"
         onPointerDown={(e) => {
+          if (appointment.visualState === "ghost") {
+            return;
+          }
           e.stopPropagation();
           onResizePointerDown(e);
         }}
@@ -255,12 +311,6 @@ import "@marco.colia/react-fast-scheduler/styles.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(<SchedulerExample />);
 ```
 
-If you work inside this library repo (local demo), import the Tailwind v4 source entry:
-
-```tsx
-import "../src/global.css";
-```
-
 You can override tokens in your app:
 
 ```css
@@ -275,23 +325,4 @@ You can override tokens in your app:
 
 ## Development
 
-```bash
-npm install
-npm run dev:demo
-npm run lint
-npm run test
-npm run build
-```
-
-`dev/main.tsx` contains a minimal runnable scheduler demo used by `npm run dev:demo`.
-Tailwind v4 source styles are in `src/global.css`, and the demo imports them from `dev/main.tsx`.
-
-## Releasing
-
-This repo uses [Changesets](https://github.com/changesets/changesets) and GitHub Actions.
-
-1. Create a changeset: `npx changeset`
-2. Merge to `main`
-3. The `Release` workflow opens/updates a release PR
-4. Merging that PR publishes to npm via npm Trusted Publishing and GitHub OIDC
-5. Merging that PR publishes to npm via npm Trusted Publishing and GitHub OIDC
+Repo-specific development notes, local demo usage, quality checks, and release workflow are in [DEVELOPMENT.md](./DEVELOPMENT.md).

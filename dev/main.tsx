@@ -2,52 +2,21 @@ import * as React from "react";
 import { createRoot } from "react-dom/client";
 
 import { Scheduler } from "../src";
+import "../src/global.css";
 import { Button } from "../src/components/ui/button";
 import { Calendar } from "../src/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../src/components/ui/popover";
 
-import type { BaseSchedulerResource } from "../src";
-import "../src/global.css";
+import { createTodayAppointments, resources } from "./const";
 import "./styles.css";
 
-type Resource = BaseSchedulerResource<number> & {
-  appointmentColorClass?: string;
-};
-
-type Appointment = {
-  id: number;
-  resourceId: number;
-  description?: string;
-  title: string;
-  start: string;
-  end: string;
-};
-
-const resources: Resource[] = [
-  { id: 1, label: "Room A", appointmentColorClass: "bg-amber-100 dark:bg-amber-950/40" },
-  { id: 2, label: "Room B", appointmentColorClass: "bg-blue-100 dark:bg-blue-950/40" },
-];
+import type { Appointment, Resource } from "./const";
 
 function App() {
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const [appointments, setAppointments] = React.useState<Appointment[]>([
-    {
-      id: 1,
-      resourceId: 1,
-      description: "First consultation with intake notes",
-      title: "Initial Meeting",
-      start: "2026-03-25T09:00:00.000Z",
-      end: "2026-03-25T10:00:00.000Z",
-    },
-    {
-      id: 2,
-      resourceId: 2,
-      title: "Initial Meeting 2",
-      description: "First consultation with intake notes",
-      start: "2026-03-25T09:15:00.000Z",
-      end: "2026-03-25T12:00:00.000Z",
-    },
-  ]);
+  const [selectedDate, setSelectedDate] = React.useState(() => new Date());
+  const [appointments, setAppointments] = React.useState<Appointment[]>(() =>
+    createTodayAppointments(new Date())
+  );
 
   return (
     <div className="mx-auto my-6 px-4 font-sans">
@@ -131,16 +100,28 @@ function App() {
         renderResourceHeader={(resource) => <strong className="text-sm">{resource.label}</strong>}
         renderAppointment={({
           appointment,
+          isDropInvalid,
           onPointerDown,
           onResizePointerDown,
           appointmentBackgroundColor,
         }) => (
           <div
             onPointerDown={onPointerDown}
-            className={`relative h-full cursor-grab overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground shadow-sm active:cursor-grabbing ${
-              appointmentBackgroundColor ?? "bg-card"
+            className={`relative h-full overflow-hidden rounded-md border p-2 pb-5 text-foreground shadow-sm ${
+              appointment.visualState === "dragging" ? "cursor-grabbing" : "cursor-grab"
+            } ${
+              appointment.visualState === "ghost" ? "border-dashed opacity-55" : "border-border"
+            } ${
+              isDropInvalid
+                ? "border-red-500 bg-red-100/80 ring-1 ring-red-500/60"
+                : (appointmentBackgroundColor ?? "bg-card")
             }`}
           >
+            {isDropInvalid ? (
+              <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+                X
+              </div>
+            ) : null}
             <div className="text-xs font-semibold leading-tight">{appointment.title}</div>
             {appointment.raw.description ? (
               <div className="mt-1 text-[10px] font-medium tracking-wide text-muted-foreground">
@@ -152,6 +133,9 @@ function App() {
               aria-label="Resize appointment"
               className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-border/90 transition-colors hover:bg-border"
               onPointerDown={(event) => {
+                if (appointment.visualState === "ghost") {
+                  return;
+                }
                 event.stopPropagation();
                 onResizePointerDown(event);
               }}

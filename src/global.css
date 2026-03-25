@@ -200,6 +200,21 @@
   user-select: none;
 }
 
+.rfs-card-slot--ghost {
+  z-index: 10;
+  pointer-events: none;
+}
+
+.rfs-card-slot--dragging {
+  z-index: 30;
+}
+
+.rfs-drag-overlay {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+}
+
 .rfs-toolbar {
   @apply mb-3 flex items-center gap-2;
 }

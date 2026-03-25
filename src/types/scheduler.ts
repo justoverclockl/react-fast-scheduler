@@ -26,6 +26,16 @@ export type SchedulerEvent<TAppointment, TResourceId extends SchedulerId> = {
   title: string;
 };
 
+export type SchedulerAppointmentVisualState = "normal" | "ghost" | "dragging";
+
+export type SchedulerPresentationAppointment<
+  TAppointment,
+  TResourceId extends SchedulerId,
+> = SchedulerEvent<TAppointment, TResourceId> & {
+  renderKey: string;
+  visualState: SchedulerAppointmentVisualState;
+};
+
 export type SchedulerDragState<TResourceId extends SchedulerId> =
   | { kind: "none" }
   | {
@@ -102,7 +112,11 @@ export type SchedulerProps<
   ) => Promise<void> | void;
   renderResourceHeader?: (resource: TResource) => React.ReactNode;
   renderAppointment?: (args: {
-    appointment: SchedulerEvent<TAppointment, TResourceId> & { lane: number; lanes: number };
+    appointment: SchedulerPresentationAppointment<TAppointment, TResourceId> & {
+      lane: number;
+      lanes: number;
+    };
+    isDropInvalid: boolean;
     onPointerDown: (e: React.PointerEvent) => void;
     onResizePointerDown: (e: React.PointerEvent) => void;
     appointmentAppearance?: SchedulerAppointmentAppearance;

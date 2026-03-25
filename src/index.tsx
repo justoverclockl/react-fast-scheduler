@@ -4,11 +4,13 @@ export type {
   SchedulerAppointmentAppearance,
   SchedulerAppointmentColorToken,
   SchedulerResourceClassMap,
+  SchedulerAppointmentVisualState,
   SchedulerAppointmentChangeArgs,
   SchedulerAppointmentAdapter,
   SchedulerDragState,
   SchedulerEvent,
   SchedulerId,
+  SchedulerPresentationAppointment,
   SchedulerToolbarRenderArgs,
   SchedulerProps,
 } from "./types";
