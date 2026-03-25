@@ -1,9 +1,8 @@
+import { STEP_MIN } from "@components/constants";
 import { format } from "date-fns";
 
-import { STEP_MIN } from "../components/constants";
-
-import type { LaidOut, NameLike, TimeBlockLike } from "../types/internal";
-import type { SchedulerAppointmentColorToken } from "../types/scheduler";
+import type { LaidOut, NameLike, TimeBlockLike } from "@rfs-types/internal";
+import type { SchedulerAppointmentColorToken } from "@rfs-types/scheduler";
 
 export function isNameLike(resource: unknown): resource is NameLike {
   if (!resource || typeof resource !== "object") {

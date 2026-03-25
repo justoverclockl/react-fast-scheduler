@@ -1,7 +1,7 @@
-import * as React from "react";
 
-import { MIN_EVENT_MIN, PX_PER_MIN, TOP_PAD } from "../components/constants";
-import { clamp, dateAtMinute, overlaps, snap } from "../utils/scheduler-core.utils";
+import { MIN_EVENT_MIN, PX_PER_MIN, TOP_PAD } from "@components/constants";
+import { clamp, dateAtMinute, overlaps, snap } from "@utils/scheduler-core.utils";
+import * as React from "react";
 
 import type { SchedulerInteractions, UseSchedulerInteractionsArgs } from "./types";
 import type {
@@ -9,7 +9,7 @@ import type {
   SchedulerDragState,
   SchedulerEvent,
   SchedulerId,
-} from "../types/scheduler";
+} from "@rfs-types/scheduler";
 
 export function useSchedulerInteractions<
   TAppointment,

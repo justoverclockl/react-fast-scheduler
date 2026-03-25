@@ -1,3 +1,4 @@
+import { cn } from "@lib/cn";
 import {
   addDays,
   addMonths,
@@ -11,8 +12,6 @@ import {
   startOfWeek,
 } from "date-fns";
 import * as React from "react";
-
-import { cn } from "../../lib/cn";
 
 import { Button } from "./button";
 
@@ -64,7 +63,10 @@ export function Calendar({
 
       <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
         {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((label) => (
-          <div key={label} className="py-1">
+          <div
+            key={label}
+            className="py-1"
+          >
             {label}
           </div>
         ))}

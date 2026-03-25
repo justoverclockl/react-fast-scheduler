@@ -1,8 +1,7 @@
+import { Button } from "@components/ui/button";
 import * as React from "react";
 
-import { Button } from "../ui/button";
-
-import type { SchedulerToolbarRenderArgs } from "../../types";
+import type { SchedulerToolbarRenderArgs } from "@rfs-types";
 
 type DefaultRenderToolbarProps = SchedulerToolbarRenderArgs & {
   prevButtonLabel?: React.ReactNode;
@@ -19,11 +18,19 @@ export function defaultRenderToolbar({
   return (
     <div className="rfs-toolbar">
       <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1 shadow-xs">
-        <Button variant="outline" size="sm" onClick={goToPreviousDay}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={goToPreviousDay}
+        >
           {prevButtonLabel}
         </Button>
         {defaultDatePicker}
-        <Button variant="outline" size="sm" onClick={goToNextDay}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={goToNextDay}
+        >
           {nextButtonLabel}
         </Button>
       </div>

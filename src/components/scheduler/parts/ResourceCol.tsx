@@ -1,16 +1,19 @@
+
+import { MIN_EVENT_MIN, PX_PER_MIN, RESOURCE_MIN_W, STEP_MIN, TOP_PAD } from "@components/constants";
+import { defaultRenderAppointment } from "@components/defaultRenderAppointment";
 import * as React from "react";
 
-import { MIN_EVENT_MIN, PX_PER_MIN, RESOURCE_MIN_W, STEP_MIN, TOP_PAD } from "../../constants";
-import { defaultRenderAppointment } from "../../defaultRenderAppointment";
+import { HourLine } from "./HourLine";
+import { SlotLine } from "./SlotLine";
 
-import type { SchedulerLayoutAppointment } from "../../../types/internal";
+import type { SchedulerLayoutAppointment } from "@rfs-types/internal";
 import type {
   BaseSchedulerResource,
   SchedulerAppointmentAppearance,
   SchedulerDragState,
   SchedulerEvent,
   SchedulerId,
-} from "../../../types/scheduler";
+} from "@rfs-types/scheduler";
 
 type SchedulerResourceColumnProps<TAppointment, TResourceId extends SchedulerId> = {
   resource: BaseSchedulerResource<TResourceId>;
@@ -56,7 +59,10 @@ export function ResourceCol<TAppointment, TResourceId extends SchedulerId>({
   suppressClickRef,
 }: SchedulerResourceColumnProps<TAppointment, TResourceId>) {
   return (
-    <div className="rfs-col border-border bg-card" style={{ minWidth: RESOURCE_MIN_W, flex: 1 }}>
+    <div
+      className="rfs-col border-border bg-card"
+      style={{ minWidth: RESOURCE_MIN_W, flex: 1 }}
+    >
       <div
         ref={(el) => {
           colRefs.current[String(resource.id)] = el;
@@ -65,17 +71,15 @@ export function ResourceCol<TAppointment, TResourceId extends SchedulerId>({
         style={{ height: gridHeight }}
       >
         {Array.from({ length: Math.floor(dayMinutes / 60) + 1 }).map((_, i) => (
-          <div
+          <HourLine
             key={`major-${i}`}
-            className="rfs-hour-line border-border/70"
-            style={{ top: TOP_PAD + i * 60 * PX_PER_MIN }}
+            hourIndex={i}
           />
         ))}
         {Array.from({ length: Math.floor(dayMinutes / STEP_MIN) + 1 }).map((_, i) => (
-          <div
+          <SlotLine
             key={`minor-${i}`}
-            className="rfs-slot-line border-border/50"
-            style={{ top: TOP_PAD + i * STEP_MIN * PX_PER_MIN }}
+            slotIndex={i}
           />
         ))}
         {appointments.map((appointment) => {
