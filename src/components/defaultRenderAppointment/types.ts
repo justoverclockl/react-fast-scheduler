@@ -12,6 +12,7 @@ export type DefaultRenderAppointmentProps<TAppointment, TResourceId extends Sche
     lane: number;
     lanes: number;
   };
+  isDropInvalid: boolean;
   onPointerDown: (event: React.PointerEvent) => void;
   onResizePointerDown: (event: React.PointerEvent) => void;
   appointmentAppearance?: SchedulerAppointmentAppearance;

@@ -87,6 +87,7 @@ export type UseSchedulerPresentationDataArgs<
 export type SchedulerInteractions<TAppointment, TResourceId extends SchedulerId> = {
   colRefs: React.RefObject<Record<string, HTMLDivElement | null>>;
   drag: SchedulerDragState<TResourceId>;
+  isDropInvalid: boolean;
   movePreview: SchedulerMovePreview<TAppointment, TResourceId> | null;
   onApptPointerDown: (
     event: React.PointerEvent,

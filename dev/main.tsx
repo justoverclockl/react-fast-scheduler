@@ -100,16 +100,28 @@ function App() {
         renderResourceHeader={(resource) => <strong className="text-sm">{resource.label}</strong>}
         renderAppointment={({
           appointment,
+          isDropInvalid,
           onPointerDown,
           onResizePointerDown,
           appointmentBackgroundColor,
         }) => (
           <div
             onPointerDown={onPointerDown}
-            className={`relative h-full cursor-grab overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground shadow-sm active:cursor-grabbing ${
-              appointmentBackgroundColor ?? "bg-card"
+            className={`relative h-full overflow-hidden rounded-md border p-2 pb-5 text-foreground shadow-sm ${
+              appointment.visualState === "dragging" ? "cursor-grabbing" : "cursor-grab"
+            } ${
+              appointment.visualState === "ghost" ? "border-dashed opacity-55" : "border-border"
+            } ${
+              isDropInvalid
+                ? "border-red-500 bg-red-100/80 ring-1 ring-red-500/60"
+                : (appointmentBackgroundColor ?? "bg-card")
             }`}
           >
+            {isDropInvalid ? (
+              <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+                X
+              </div>
+            ) : null}
             <div className="text-xs font-semibold leading-tight">{appointment.title}</div>
             {appointment.raw.description ? (
               <div className="mt-1 text-[10px] font-medium tracking-wide text-muted-foreground">
@@ -121,6 +133,9 @@ function App() {
               aria-label="Resize appointment"
               className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-border/90 transition-colors hover:bg-border"
               onPointerDown={(event) => {
+                if (appointment.visualState === "ghost") {
+                  return;
+                }
                 event.stopPropagation();
                 onResizePointerDown(event);
               }}

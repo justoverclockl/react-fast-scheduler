@@ -104,6 +104,14 @@ export const useSchedulerInteractions = <
     [renderAppts]
   );
 
+  const isDropInvalid = React.useMemo(() => {
+    if (drag.kind === "none") {
+      return false;
+    }
+
+    return hasOverlap(drag.appointmentId, drag.resourceId, drag.startMin, drag.endMin);
+  }, [drag, hasOverlap]);
+
   const persistDrag = React.useCallback(
     async (state: Exclude<SchedulerDragState<TResourceId>, { kind: "none" }>) => {
       const target = appointmentMap.get(state.appointmentId);
@@ -262,6 +270,7 @@ export const useSchedulerInteractions = <
   return {
     colRefs,
     drag,
+    isDropInvalid,
     movePreview,
     onApptPointerDown,
     onGlobalPointerMove,

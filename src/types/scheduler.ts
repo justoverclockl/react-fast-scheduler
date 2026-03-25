@@ -116,6 +116,7 @@ export type SchedulerProps<
       lane: number;
       lanes: number;
     };
+    isDropInvalid: boolean;
     onPointerDown: (e: React.PointerEvent) => void;
     onResizePointerDown: (e: React.PointerEvent) => void;
     appointmentAppearance?: SchedulerAppointmentAppearance;

@@ -123,6 +123,10 @@ If you provide `renderAppointment`, the `appointment` argument also includes:
 - `visualState`: `"normal" | "ghost" | "dragging"` so custom renderers can react to drag previews.
 - `renderKey`: an internal stable render key for presentation-layer rendering.
 
+The `renderAppointment` args also include:
+
+- `isDropInvalid`: `true` while the current drag position overlaps another appointment, so custom renderers can show invalid drop feedback.
+
 ### Resource classes by id (recommended)
 
 ```tsx
@@ -155,6 +159,7 @@ If you provide `renderAppointment`, the `appointment` argument also includes:
   // ...other props
   renderAppointment={({
     appointment,
+    isDropInvalid,
     onPointerDown,
     onResizePointerDown,
     appointmentAppearance,
@@ -162,16 +167,25 @@ If you provide `renderAppointment`, the `appointment` argument also includes:
   }) => (
     <div
       onPointerDown={onPointerDown}
-      className={`relative h-full overflow-hidden rounded-md border border-slate-300 p-2 pb-5 ${
-        appointmentAppearance?.className ?? appointmentBackgroundColor ?? "bg-slate-100"
-      } ${
+      className={`relative h-full overflow-hidden rounded-md border p-2 pb-5 ${
         appointment.visualState === "ghost"
-          ? "cursor-grab opacity-35"
+          ? "cursor-grab border-dashed opacity-55"
           : appointment.visualState === "dragging"
             ? "cursor-grabbing opacity-55"
             : "cursor-grab"
+      } ${
+        isDropInvalid
+          ? "border-red-500 bg-red-100/80 text-red-950 ring-1 ring-red-500/60"
+          : `border-slate-300 ${
+              appointmentAppearance?.className ?? appointmentBackgroundColor ?? "bg-slate-100"
+            }`
       }`}
     >
+      {isDropInvalid ? (
+        <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+          X
+        </div>
+      ) : null}
       <div className="text-xs font-semibold">{appointment.title}</div>
       {appointment.raw.description ? (
         <div className="mt-1 text-[10px] font-medium text-slate-500">

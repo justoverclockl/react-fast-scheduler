@@ -14,6 +14,7 @@ export const ResourceColInner = <TAppointment, TResourceId extends SchedulerId>(
   appointments,
   appointmentAppearance,
   appointmentBg,
+  isDropInvalid,
   renderAppointment,
   onApptPointerDown,
   onResizePointerDown,
@@ -68,6 +69,10 @@ export const ResourceColInner = <TAppointment, TResourceId extends SchedulerId>(
             >
               {(renderAppointment ?? defaultRenderAppointment)({
                 appointment,
+                isDropInvalid:
+                  isDropInvalid &&
+                  drag.kind === "resize" &&
+                  appointment.id === drag.appointmentId,
                 onPointerDown: (event) => onApptPointerDown(event, appointment),
                 onResizePointerDown: (event) => onResizePointerDown(event, appointment),
                 appointmentAppearance,

@@ -55,11 +55,13 @@ export type SchedulerResourceColumnProps<TAppointment, TResourceId extends Sched
   appointments: SchedulerLayoutAppointment<TAppointment, TResourceId>[];
   appointmentAppearance: SchedulerAppointmentAppearance | undefined;
   appointmentBg: string | undefined;
+  isDropInvalid: boolean;
   renderAppointment?: (args: {
     appointment: SchedulerPresentationAppointment<TAppointment, TResourceId> & {
       lane: number;
       lanes: number;
     };
+    isDropInvalid: boolean;
     onPointerDown: (e: React.PointerEvent) => void;
     onResizePointerDown: (e: React.PointerEvent) => void;
     appointmentAppearance?: SchedulerAppointmentAppearance;

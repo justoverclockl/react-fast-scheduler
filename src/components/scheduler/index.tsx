@@ -46,6 +46,7 @@ export function Scheduler<
   const {
     colRefs,
     drag,
+    isDropInvalid,
     movePreview,
     onApptPointerDown,
     onGlobalPointerMove,
@@ -143,6 +144,7 @@ export function Scheduler<
                   appointments={laidOutByResource.get(resource.id) ?? []}
                   appointmentAppearance={appointmentAppearanceByResource.get(resource.id)}
                   appointmentBg={appointmentBgByResource.get(resource.id)}
+                  isDropInvalid={isDropInvalid}
                   renderAppointment={renderAppointment}
                   onApptPointerDown={onApptPointerDown}
                   onResizePointerDown={onResizePointerDown}
@@ -166,6 +168,7 @@ export function Scheduler<
         >
           {(renderAppointment ?? defaultRenderAppointment)({
             appointment: moveOverlay.appointment,
+            isDropInvalid,
             onPointerDown: () => undefined,
             onResizePointerDown: () => undefined,
             appointmentAppearance: moveOverlay.appearance,
