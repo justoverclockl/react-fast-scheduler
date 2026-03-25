@@ -7,9 +7,11 @@ import type { SchedulerInteractions, UseSchedulerInteractionsArgs } from "./type
 import type {
   BaseSchedulerResource,
   SchedulerDragState,
-  SchedulerEvent,
   SchedulerId,
+  SchedulerPresentationAppointment,
 } from "../types/scheduler";
+
+const DRAG_START_THRESHOLD_PX = 4;
 
 export function useSchedulerInteractions<
   TAppointment,
@@ -29,8 +31,44 @@ export function useSchedulerInteractions<
   TResourceId
 > {
   const [drag, setDrag] = React.useState<SchedulerDragState<TResourceId>>({ kind: "none" });
+  const [movePreview, setMovePreview] = React.useState<{
+    appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>;
+    clientX: number;
+    clientY: number;
+    width: number;
+    height: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
   const colRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
   const suppressClickRef = React.useRef(false);
+  const dragRef = React.useRef<SchedulerDragState<TResourceId>>({ kind: "none" });
+  const pendingDragRef = React.useRef<{
+    drag: Exclude<SchedulerDragState<TResourceId>, { kind: "none" }>;
+    appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>;
+    startClientX: number;
+    startClientY: number;
+    width: number;
+    height: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const latestPointerRef = React.useRef<{ clientX: number; clientY: number; pointerId: number } | null>(
+    null
+  );
+  const frameRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    dragRef.current = drag;
+  }, [drag]);
+
+  React.useEffect(() => {
+    return () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, []);
 
   const pointerToMin = React.useCallback(
     (resourceId: TResourceId, clientY: number) => {
@@ -127,105 +165,202 @@ export function useSchedulerInteractions<
   );
 
   const onApptPointerDown = React.useCallback(
-    (event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => {
+    (
+      event: React.PointerEvent,
+      appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>
+    ) => {
       if (event.button !== 0) {
         return;
       }
 
       event.stopPropagation();
       suppressClickRef.current = false;
+      const rect = (event.currentTarget as HTMLDivElement).getBoundingClientRect();
       const pointerMin = pointerToMin(appointment.resourceId, event.clientY);
-      setDrag({
-        kind: "move",
-        appointmentId: appointment.id,
-        pointerId: event.pointerId,
-        resourceId: appointment.resourceId,
-        durationMin: Math.max(MIN_EVENT_MIN, appointment.endMin - appointment.startMin),
-        offsetMin: pointerMin - appointment.startMin,
-        startMin: appointment.startMin,
-        endMin: appointment.endMin,
-      });
+      pendingDragRef.current = {
+        drag: {
+          kind: "move",
+          appointmentId: appointment.id,
+          pointerId: event.pointerId,
+          resourceId: appointment.resourceId,
+          durationMin: Math.max(MIN_EVENT_MIN, appointment.endMin - appointment.startMin),
+          offsetMin: pointerMin - appointment.startMin,
+          startMin: appointment.startMin,
+          endMin: appointment.endMin,
+        },
+        appointment,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        width: rect.width,
+        height: rect.height,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top,
+      };
     },
     [pointerToMin]
   );
 
   const onResizePointerDown = React.useCallback(
-    (event: React.PointerEvent, appointment: SchedulerEvent<TAppointment, TResourceId>) => {
+    (
+      event: React.PointerEvent,
+      appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>
+    ) => {
       if (event.button !== 0) {
         return;
       }
 
       event.stopPropagation();
       suppressClickRef.current = false;
-      setDrag({
-        kind: "resize",
-        appointmentId: appointment.id,
-        pointerId: event.pointerId,
-        resourceId: appointment.resourceId,
-        startMin: appointment.startMin,
-        endMin: appointment.endMin,
-      });
+      pendingDragRef.current = {
+        drag: {
+          kind: "resize",
+          appointmentId: appointment.id,
+          pointerId: event.pointerId,
+          resourceId: appointment.resourceId,
+          startMin: appointment.startMin,
+          endMin: appointment.endMin,
+        },
+        appointment,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        width: 0,
+        height: 0,
+        offsetX: 0,
+        offsetY: 0,
+      };
     },
     []
   );
 
   const onGlobalPointerMove = React.useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
-      if (drag.kind === "none") {
+      latestPointerRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        pointerId: event.pointerId,
+      };
+
+      if (frameRef.current !== null) {
         return;
       }
 
-      if (drag.kind === "move") {
-        const nextResourceId = pointerToResourceId(event.clientX, drag.resourceId);
-        const pointerMin = pointerToMin(nextResourceId, event.clientY);
-        const rawStart = pointerMin - drag.offsetMin;
-        const nextStartMin = clamp(snap(rawStart), 0, dayMinutes - drag.durationMin);
-        const nextEndMin = nextStartMin + drag.durationMin;
-
-        if (
-          nextStartMin !== drag.startMin ||
-          nextEndMin !== drag.endMin ||
-          nextResourceId !== drag.resourceId
-        ) {
-          suppressClickRef.current = true;
-          setDrag({
-            ...drag,
-            resourceId: nextResourceId,
-            startMin: nextStartMin,
-            endMin: nextEndMin,
-          });
+      frameRef.current = window.requestAnimationFrame(() => {
+        frameRef.current = null;
+        const pointer = latestPointerRef.current;
+        if (!pointer) {
+          return;
         }
-        return;
-      }
 
-      const pointerMin = pointerToMin(drag.resourceId, event.clientY);
-      const nextEndMin = clamp(snap(pointerMin), drag.startMin + MIN_EVENT_MIN, dayMinutes);
-      if (nextEndMin !== drag.endMin) {
-        suppressClickRef.current = true;
-        setDrag({
-          ...drag,
-          endMin: nextEndMin,
-        });
-      }
+        const currentDrag = dragRef.current;
+
+        if (currentDrag.kind === "none" && pendingDragRef.current) {
+          const pending = pendingDragRef.current;
+          if (pending.drag.pointerId !== pointer.pointerId) {
+            return;
+          }
+
+          const deltaX = pointer.clientX - pending.startClientX;
+          const deltaY = pointer.clientY - pending.startClientY;
+          if (Math.hypot(deltaX, deltaY) < DRAG_START_THRESHOLD_PX) {
+            return;
+          }
+
+          suppressClickRef.current = true;
+          dragRef.current = pending.drag;
+          setDrag(pending.drag);
+          if (pending.drag.kind === "move") {
+            setMovePreview({
+              appointment: pending.appointment,
+              clientX: pointer.clientX,
+              clientY: pointer.clientY,
+              width: pending.width,
+              height: pending.height,
+              offsetX: pending.offsetX,
+              offsetY: pending.offsetY,
+            });
+          }
+          pendingDragRef.current = null;
+          return;
+        }
+
+        if (currentDrag.kind === "none") {
+          return;
+        }
+
+        if (currentDrag.kind === "move") {
+          setMovePreview((current) =>
+            current
+              ? {
+                  ...current,
+                  clientX: pointer.clientX,
+                  clientY: pointer.clientY,
+                }
+              : current
+          );
+          const nextResourceId = pointerToResourceId(pointer.clientX, currentDrag.resourceId);
+          const pointerMin = pointerToMin(nextResourceId, pointer.clientY);
+          const rawStart = pointerMin - currentDrag.offsetMin;
+          const nextStartMin = clamp(snap(rawStart), 0, dayMinutes - currentDrag.durationMin);
+          const nextEndMin = nextStartMin + currentDrag.durationMin;
+
+          if (
+            nextStartMin !== currentDrag.startMin ||
+            nextEndMin !== currentDrag.endMin ||
+            nextResourceId !== currentDrag.resourceId
+          ) {
+            suppressClickRef.current = true;
+            const nextDrag = {
+              ...currentDrag,
+              resourceId: nextResourceId,
+              startMin: nextStartMin,
+              endMin: nextEndMin,
+            };
+            dragRef.current = nextDrag;
+            setDrag(nextDrag);
+          }
+          return;
+        }
+
+        const pointerMin = pointerToMin(currentDrag.resourceId, pointer.clientY);
+        const nextEndMin = clamp(snap(pointerMin), currentDrag.startMin + MIN_EVENT_MIN, dayMinutes);
+        if (nextEndMin !== currentDrag.endMin) {
+          suppressClickRef.current = true;
+          const nextDrag = {
+            ...currentDrag,
+            endMin: nextEndMin,
+          };
+          dragRef.current = nextDrag;
+          setDrag(nextDrag);
+        }
+      });
     },
-    [dayMinutes, drag, pointerToMin, pointerToResourceId]
+    [dayMinutes, pointerToMin, pointerToResourceId]
   );
 
   const onGlobalPointerUp = React.useCallback(() => {
-    if (drag.kind === "none") {
+    if (frameRef.current !== null) {
+      window.cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+    }
+    latestPointerRef.current = null;
+    pendingDragRef.current = null;
+    setMovePreview(null);
+    const current = dragRef.current;
+    if (current.kind === "none") {
       return;
     }
 
-    const current = drag;
     setDrag({ kind: "none" });
+    dragRef.current = { kind: "none" };
     if (suppressClickRef.current) {
       void persistDrag(current);
     }
-  }, [drag, persistDrag]);
+  }, [persistDrag]);
 
   return {
     colRefs,
     drag,
+    movePreview,
     onApptPointerDown,
     onGlobalPointerMove,
     onGlobalPointerUp,

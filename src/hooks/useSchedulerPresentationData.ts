@@ -2,9 +2,10 @@ import * as React from "react";
 
 import { DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP } from "../utils/scheduler-core.utils";
 import {
-  applyDragToAppointments,
   buildAppointmentAppearanceByResource,
+  buildLaidOutAppointments,
   buildLaidOutByResource,
+  buildPresentationAppointments,
   buildResourceMap,
 } from "../utils/scheduler-data.utils";
 
@@ -32,12 +33,25 @@ export function useSchedulerPresentationData<
   TResourceId
 >): SchedulerPresentationData<TAppointment, TResourceId> {
   const effectiveAppts = React.useMemo(() => {
-    return applyDragToAppointments(renderAppts, drag, selectedDate, dayStartAbs);
+    return buildPresentationAppointments(renderAppts, drag, selectedDate, dayStartAbs);
   }, [dayStartAbs, drag, renderAppts, selectedDate]);
 
+  const baseLaidOutByResource = React.useMemo(() => {
+    return buildLaidOutByResource(resources, renderAppts);
+  }, [renderAppts, resources]);
+
   const laidOutByResource = React.useMemo(() => {
-    return buildLaidOutByResource(resources, effectiveAppts);
-  }, [effectiveAppts, resources]);
+    if (drag.kind !== "resize") {
+      return baseLaidOutByResource;
+    }
+
+    const next = new Map(baseLaidOutByResource);
+    const nextAppointmentsForResource = effectiveAppts.filter(
+      (appointment) => appointment.resourceId === drag.resourceId
+    );
+    next.set(drag.resourceId, buildLaidOutAppointments(nextAppointmentsForResource));
+    return next;
+  }, [baseLaidOutByResource, drag, effectiveAppts]);
 
   const appointmentBgByResource = React.useMemo(() => {
     if (!getResourceAppointmentBackground) {

@@ -1,53 +1,22 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 
-import { Scheduler } from "../src";
 import { Button } from "../src/components/ui/button";
 import { Calendar } from "../src/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../src/components/ui/popover";
-
-import type { BaseSchedulerResource } from "../src";
+import { Scheduler } from "../src";
 import "../src/global.css";
+
+import { createTodayAppointments, resources } from "./const";
 import "./styles.css";
 
-type Resource = BaseSchedulerResource<number> & {
-  appointmentColorClass?: string;
-};
-
-type Appointment = {
-  id: number;
-  resourceId: number;
-  description?: string;
-  title: string;
-  start: string;
-  end: string;
-};
-
-const resources: Resource[] = [
-  { id: 1, label: "Room A", appointmentColorClass: "bg-amber-100" },
-  { id: 2, label: "Room B", appointmentColorClass: "bg-blue-100" },
-];
+import type { Appointment, Resource } from "./const";
 
 function App() {
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const [appointments, setAppointments] = React.useState<Appointment[]>([
-    {
-      id: 1,
-      resourceId: 1,
-      description: "First consultation with intake notes",
-      title: "Initial Meeting",
-      start: "2026-03-23T09:00:00.000Z",
-      end: "2026-03-23T10:00:00.000Z",
-    },
-    {
-      id: 2,
-      resourceId: 2,
-      title: "Initial Meeting 2",
-      description: "First consultation with intake notes",
-      start: "2026-03-23T09:15:00.000Z",
-      end: "2026-03-23T12:00:00.000Z",
-    },
-  ]);
+  const [selectedDate, setSelectedDate] = React.useState(() => new Date());
+  const [appointments, setAppointments] = React.useState<Appointment[]>(() =>
+    createTodayAppointments(new Date())
+  );
 
   return (
     <div className="mx-auto my-6 px-4 font-sans">
@@ -76,7 +45,11 @@ function App() {
               <div className="text-xs text-muted-foreground">{value.toDateString()}</div>
             </div>
             <div className="flex items-center flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={goToPreviousDay}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousDay}
+              >
                 Indietro
               </Button>
               <Popover>
@@ -89,11 +62,21 @@ function App() {
                     {value.toDateString()}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-2" align="center">
-                  <Calendar selected={value} onSelect={onSelectedDateChange} />
+                <PopoverContent
+                  className="w-auto p-2"
+                  align="center"
+                >
+                  <Calendar
+                    selected={value}
+                    onSelect={onSelectedDateChange}
+                  />
                 </PopoverContent>
               </Popover>
-              <Button variant="outline" size="sm" onClick={goToNextDay}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextDay}
+              >
                 Avanti
               </Button>
             </div>

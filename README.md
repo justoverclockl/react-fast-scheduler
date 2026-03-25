@@ -2,7 +2,7 @@
 
 A lightweight React scheduling library scaffold with CI/CD publishing.
 
-![img.png](https://bg-so-1.zippyimage.com/2026/03/20/9f3bd8a7a76d94f6e110aa0a0bef11d3.png)
+![img.png](https://bg-so-1.zippyimage.com/2026/03/25/71451a2e2aa173eaa36caec5ac4a6e84.png)
 
 ## Install
 
@@ -95,6 +95,7 @@ export function SchedulerExample() {
 ```
 
 `renderAppointment` is optional. If you omit it, the scheduler uses the built-in appointment card with light/dark mode support.
+During move drag, the scheduler keeps the original card in place and renders a floating ghost preview by default.
 `renderToolbar` is optional. If you omit it, the scheduler uses a built-in shadcn-style toolbar with prev/next buttons and a calendar popover date picker.
 `renderDatePicker` is optional. If you omit it, the default toolbar uses the built-in calendar popover date picker.
 `onAppointmentChange` is a simple callback: use it to update your state and run your own side effects.
@@ -116,6 +117,11 @@ Main props you need to pass:
 - `renderDatePicker`: optional render hook for the date picker slot used by the default toolbar.
 - `renderResourceHeader`: optional render hook for resource column headers.
 - `renderAppointment`: optional render hook to fully customize appointment cards.
+
+If you provide `renderAppointment`, the `appointment` argument also includes:
+
+- `visualState`: `"normal" | "ghost" | "dragging"` so custom renderers can react to drag previews.
+- `renderKey`: an internal stable render key for presentation-layer rendering.
 
 ### Resource classes by id (recommended)
 
@@ -156,8 +162,14 @@ Main props you need to pass:
   }) => (
     <div
       onPointerDown={onPointerDown}
-      className={`relative h-full cursor-grab overflow-hidden rounded-md border border-slate-300 p-2 pb-5 ${
+      className={`relative h-full overflow-hidden rounded-md border border-slate-300 p-2 pb-5 ${
         appointmentAppearance?.className ?? appointmentBackgroundColor ?? "bg-slate-100"
+      } ${
+        appointment.visualState === "ghost"
+          ? "cursor-grab opacity-35"
+          : appointment.visualState === "dragging"
+            ? "cursor-grabbing opacity-55"
+            : "cursor-grab"
       }`}
     >
       <div className="text-xs font-semibold">{appointment.title}</div>
@@ -170,6 +182,9 @@ Main props you need to pass:
         role="button"
         aria-label="Resize appointment"
         onPointerDown={(e) => {
+          if (appointment.visualState === "ghost") {
+            return;
+          }
           e.stopPropagation();
           onResizePointerDown(e);
         }}
@@ -255,12 +270,6 @@ import "@marco.colia/react-fast-scheduler/styles.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(<SchedulerExample />);
 ```
 
-If you work inside this library repo (local demo), import the Tailwind v4 source entry:
-
-```tsx
-import "../src/global.css";
-```
-
 You can override tokens in your app:
 
 ```css
@@ -275,23 +284,4 @@ You can override tokens in your app:
 
 ## Development
 
-```bash
-npm install
-npm run dev:demo
-npm run lint
-npm run test
-npm run build
-```
-
-`dev/main.tsx` contains a minimal runnable scheduler demo used by `npm run dev:demo`.
-Tailwind v4 source styles are in `src/global.css`, and the demo imports them from `dev/main.tsx`.
-
-## Releasing
-
-This repo uses [Changesets](https://github.com/changesets/changesets) and GitHub Actions.
-
-1. Create a changeset: `npx changeset`
-2. Merge to `main`
-3. The `Release` workflow opens/updates a release PR
-4. Merging that PR publishes to npm via npm Trusted Publishing and GitHub OIDC
-5. Merging that PR publishes to npm via npm Trusted Publishing and GitHub OIDC
+Repo-specific development notes, local demo usage, quality checks, and release workflow are in [DEVELOPMENT.md](./DEVELOPMENT.md).

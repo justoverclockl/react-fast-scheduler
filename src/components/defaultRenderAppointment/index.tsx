@@ -16,7 +16,13 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
     typeof appointmentBackgroundColor === "string" ? appointmentBackgroundColor : undefined;
   const backgroundClassName =
     appointmentAppearance?.className ?? legacyClassName ?? "bg-muted/40 dark:bg-muted/30";
-  const className = `relative h-full cursor-grab overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground ${backgroundClassName}`;
+  const visualStateClassName =
+    appointment.visualState === "ghost"
+      ? "cursor-grab border-dashed opacity-35"
+      : appointment.visualState === "dragging"
+        ? "cursor-grabbing opacity-55 shadow-xl ring-1 ring-border/70"
+        : "cursor-grab";
+  const className = `relative h-full overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground ${backgroundClassName} ${visualStateClassName}`;
 
   return (
     <div onPointerDown={onPointerDown} className={className}>
@@ -28,6 +34,9 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
         role="button"
         aria-label="Resize appointment"
         onPointerDown={(event) => {
+          if (appointment.visualState === "ghost") {
+            return;
+          }
           event.stopPropagation();
           onResizePointerDown(event);
         }}

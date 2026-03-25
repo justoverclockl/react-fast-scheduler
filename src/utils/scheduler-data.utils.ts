@@ -15,8 +15,8 @@ import type {
   BaseSchedulerResource,
   SchedulerAppointmentAppearance,
   SchedulerDragState,
-  SchedulerEvent,
   SchedulerId,
+  SchedulerPresentationAppointment,
 } from "../types/scheduler";
 
 export function buildResourceMap<TResource, TResourceId extends SchedulerId, TValue>({
@@ -52,24 +52,30 @@ export function normalizeAppointments<TAppointment, TResourceId extends Schedule
         startMin: clamp(minutesFromDayStart(dayStartAbs, start), 0, dayMinutes),
         endMin: clamp(minutesFromDayStart(dayStartAbs, end), 0, dayMinutes),
         title: adapter.getTitle(appointment),
+        renderKey: String(adapter.getId(appointment)),
+        visualState: "normal" as const,
       };
     })
     .filter((appointment) => dayISO(appointment.start) === selectedISO);
 }
 
 export function buildAppointmentMap<TAppointment, TResourceId extends SchedulerId>(
-  appointments: SchedulerEvent<TAppointment, TResourceId>[]
+  appointments: SchedulerPresentationAppointment<TAppointment, TResourceId>[]
 ) {
   return new Map(appointments.map((appointment) => [appointment.id, appointment]));
 }
 
-export function applyDragToAppointments<TAppointment, TResourceId extends SchedulerId>(
-  appointments: SchedulerEvent<TAppointment, TResourceId>[],
+export function buildPresentationAppointments<TAppointment, TResourceId extends SchedulerId>(
+  appointments: SchedulerPresentationAppointment<TAppointment, TResourceId>[],
   drag: SchedulerDragState<TResourceId>,
   selectedDate: Date,
   dayStartAbs: number
-) {
+): SchedulerPresentationAppointment<TAppointment, TResourceId>[] {
   if (drag.kind === "none") {
+    return appointments;
+  }
+
+  if (drag.kind === "move") {
     return appointments;
   }
 
@@ -85,6 +91,7 @@ export function applyDragToAppointments<TAppointment, TResourceId extends Schedu
       endMin: drag.endMin,
       start: dateAtMinute(selectedDate, dayStartAbs, drag.startMin),
       end: dateAtMinute(selectedDate, dayStartAbs, drag.endMin),
+      visualState: "dragging" as const,
     };
   });
 }
@@ -93,10 +100,13 @@ export function buildLaidOutByResource<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
   TResourceId extends SchedulerId,
->(resources: TResource[], appointments: SchedulerEvent<TAppointment, TResourceId>[]) {
+>(
+  resources: TResource[],
+  appointments: SchedulerPresentationAppointment<TAppointment, TResourceId>[]
+) {
   const appointmentsByResource = new Map<
     TResourceId,
-    SchedulerEvent<TAppointment, TResourceId>[]
+    SchedulerPresentationAppointment<TAppointment, TResourceId>[]
   >();
 
   for (const appointment of appointments) {
@@ -107,9 +117,24 @@ export function buildLaidOutByResource<
 
   const result = new Map<TResourceId, SchedulerLayoutAppointment<TAppointment, TResourceId>[]>();
   for (const resource of resources) {
-    result.set(resource.id, layoutOverlaps(appointmentsByResource.get(resource.id) ?? []));
+    result.set(resource.id, buildLaidOutAppointments(appointmentsByResource.get(resource.id) ?? []));
   }
   return result;
+}
+
+export function buildLaidOutAppointments<TAppointment, TResourceId extends SchedulerId>(
+  appointments: SchedulerPresentationAppointment<TAppointment, TResourceId>[]
+) {
+  return layoutOverlaps(
+    appointments.map((appointment) => ({
+      ...appointment,
+      appointmentId: appointment.id,
+      id: appointment.renderKey,
+    }))
+  ).map(({ appointmentId, ...appointment }) => ({
+    ...appointment,
+    id: appointmentId,
+  }));
 }
 
 export function buildAppointmentAppearanceByResource<

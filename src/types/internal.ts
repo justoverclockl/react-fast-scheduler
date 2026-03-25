@@ -1,4 +1,12 @@
-import type { SchedulerAppointmentAdapter, SchedulerEvent, SchedulerId } from "./scheduler";
+import type {
+  BaseSchedulerResource,
+  SchedulerAppointmentAppearance,
+  SchedulerAppointmentAdapter,
+  SchedulerDragState,
+  SchedulerId,
+  SchedulerPresentationAppointment,
+} from "./scheduler";
+import type * as React from "react";
 
 export type NameLike = {
   firstName?: string | null;
@@ -19,7 +27,7 @@ export type LaidOut<T extends TimeBlockLike> = T & {
 export type SchedulerLayoutAppointment<
   TAppointment,
   TResourceId extends SchedulerId,
-> = SchedulerEvent<TAppointment, TResourceId> & {
+> = SchedulerPresentationAppointment<TAppointment, TResourceId> & {
   lane: number;
   lanes: number;
 };
@@ -37,4 +45,36 @@ export type NormalizeAppointmentsArgs<TAppointment, TResourceId extends Schedule
   dayMinutes: number;
   dayStartAbs: number;
   selectedISO: string;
+};
+
+export type SchedulerResourceColumnProps<TAppointment, TResourceId extends SchedulerId> = {
+  resource: BaseSchedulerResource<TResourceId>;
+  colRefs: React.RefObject<Record<string, HTMLDivElement | null>>;
+  gridHeight: number;
+  dayMinutes: number;
+  appointments: SchedulerLayoutAppointment<TAppointment, TResourceId>[];
+  appointmentAppearance: SchedulerAppointmentAppearance | undefined;
+  appointmentBg: string | undefined;
+  renderAppointment?: (args: {
+    appointment: SchedulerPresentationAppointment<TAppointment, TResourceId> & {
+      lane: number;
+      lanes: number;
+    };
+    onPointerDown: (e: React.PointerEvent) => void;
+    onResizePointerDown: (e: React.PointerEvent) => void;
+    appointmentAppearance?: SchedulerAppointmentAppearance;
+    appointmentBackgroundColor?: string;
+    drag: SchedulerDragState<TResourceId>;
+    suppressClickRef: React.RefObject<boolean>;
+  }) => React.ReactNode;
+  onApptPointerDown: (
+    event: React.PointerEvent,
+    appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>
+  ) => void;
+  onResizePointerDown: (
+    event: React.PointerEvent,
+    appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>
+  ) => void;
+  drag: SchedulerDragState<TResourceId>;
+  suppressClickRef: React.RefObject<boolean>;
 };
