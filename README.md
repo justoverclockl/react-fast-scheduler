@@ -1,22 +1,52 @@
 # react-fast-scheduler
 
-A lightweight React scheduling library scaffold with CI/CD publishing.
+A lightweight React day scheduler for resource-based booking UIs.
 
-![img.gif](https://res.cloudinary.com/dt74zb1rv/image/upload/v1774457086/Video_del_2026-03-25_17-35-51_kuflee.gif)
+`react-fast-scheduler` gives you a controlled day view with:
+
+- resource columns for staff, rooms, or assets
+- drag and resize interactions
+- date navigation with a built-in toolbar and date picker
+- customizable appointment rendering
+- a simple adapter layer for your backend data
+
+![Scheduler demo](https://res.cloudinary.com/dt74zb1rv/image/upload/v1774457086/Video_del_2026-03-25_17-35-51_kuflee.gif)
 
 ## Install
 
 ```bash
-npm i @marco.colia/react-fast-scheduler
+npm install @marco.colia/react-fast-scheduler
 ```
 
-## Usage
+Peer dependencies:
+
+- `react` `^18 || ^19`
+- `react-dom` `^18 || ^19`
+
+Import the packaged styles once in your app:
+
+```tsx
+import "@marco.colia/react-fast-scheduler/styles.css";
+```
+
+## Quick Start
+
+The scheduler is a controlled component:
+
+- your app owns `selectedDate`
+- your app fetches appointments for that date
+- the scheduler calls `onSelectedDateChange` when the user navigates
+- your app updates `appointments` and passes the new data back in
 
 ```tsx
 import { useEffect, useState } from "react";
-import { Scheduler } from "@marco.colia/react-fast-scheduler";
+import {
+  Scheduler,
+  applySchedulerAppointmentChange,
+  type BaseSchedulerResource,
+  type SchedulerAppointmentChangeArgs,
+} from "@marco.colia/react-fast-scheduler";
 import "@marco.colia/react-fast-scheduler/styles.css";
-import type { BaseSchedulerResource } from "@marco.colia/react-fast-scheduler";
 
 type Staff = BaseSchedulerResource<number> & {
   firstName: string;
@@ -26,17 +56,24 @@ type Staff = BaseSchedulerResource<number> & {
 type Appointment = {
   id: number;
   staffId: number;
-  description?: string;
   customerName: string;
   title: string;
-  start: string; // ISO string
-  end: string; // ISO string
+  description?: string;
+  start: string;
+  end: string;
 };
 
-export function SchedulerExample() {
+const formatLocalDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+export const SchedulerExample = () => {
   const [staff, setStaff] = useState<Staff[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date("2026-03-20T00:00:00.000Z"));
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
 
   const loadStaff = async () => {
     const response = await fetch("/api/staff");
@@ -45,44 +82,46 @@ export function SchedulerExample() {
   };
 
   const loadAppointments = async (date: Date) => {
-    const isoDate = date.toISOString().slice(0, 10);
-    const response = await fetch(`/api/appointments?date=${isoDate}`);
+    const response = await fetch(`/api/appointments?date=${formatLocalDate(date)}`);
     const data = (await response.json()) as Appointment[];
     setAppointments(data);
   };
 
-  const persistAppointmentChange = async (appointmentId: number, next: Appointment) => {
+  const persistAppointment = async (
+    appointmentId: number,
+    nextAppointment: Appointment
+  ) => {
     await fetch(`/api/appointments/${appointmentId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(next),
+      body: JSON.stringify(nextAppointment),
     });
   };
 
-  const handleAppointmentChange = async ({ appointment, previous, next }) => {
-    const nextAppointment = {
-      ...appointment,
-      staffId: next.resourceId,
-      start: next.start.toISOString(),
-      end: next.end.toISOString(),
-    };
+  const handleAppointmentChange = async (
+    change: SchedulerAppointmentChangeArgs<Appointment, number>
+  ) => {
+    const optimisticAppointments = applySchedulerAppointmentChange(appointments, change, {
+      getId: (item) => item.id,
+      setResourceId: (item, resourceId) => ({ ...item, staffId: resourceId }),
+      setStart: (item, start) => ({ ...item, start: start.toISOString() }),
+      setEnd: (item, end) => ({ ...item, end: end.toISOString() }),
+    });
+
+    setAppointments(optimisticAppointments);
+
+    const nextAppointment = optimisticAppointments.find(
+      (item) => item.id === change.appointment.id
+    );
+
+    if (!nextAppointment) {
+      return;
+    }
 
     try {
-      await persistAppointmentChange(appointment.id, nextAppointment);
-      await loadAppointments(selectedDate);
+      await persistAppointment(change.appointment.id, nextAppointment);
     } catch {
-      setAppointments((current) =>
-        current.map((item) =>
-          item.id === appointment.id
-            ? {
-                ...item,
-                staffId: previous.resourceId,
-                start: previous.start.toISOString(),
-                end: previous.end.toISOString(),
-              }
-            : item
-        )
-      );
+      await loadAppointments(selectedDate);
     }
   };
 
@@ -100,73 +139,168 @@ export function SchedulerExample() {
       appointments={appointments}
       selectedDate={selectedDate}
       onSelectedDateChange={setSelectedDate}
-      prevButtonLabel="Previous day"
-      nextButtonLabel="Next day"
       adapter={{
-        getId: (a) => a.id,
-        getResourceId: (a) => a.staffId,
-        getStart: (a) => a.start,
-        getEnd: (a) => a.end,
-        getTitle: (a) => `${a.customerName} - ${a.title}`,
+        getId: (item) => item.id,
+        getResourceId: (item) => item.staffId,
+        getStart: (item) => item.start,
+        getEnd: (item) => item.end,
+        getTitle: (item) => `${item.customerName} - ${item.title}`,
       }}
       onAppointmentChange={handleAppointmentChange}
-      resourceAppointmentClassMap={{
-        "1": "bg-amber-100 dark:bg-amber-950/40",
-        "2": "bg-blue-100 dark:bg-blue-950/40",
-      }}
       dayStart="09:00"
       dayEnd="18:00"
     />
   );
+};
+```
+
+## How Data Flow Works
+
+When the user changes the day from the built-in toolbar or date picker:
+
+1. the scheduler calls `onSelectedDateChange(nextDate)`
+2. your state updates `selectedDate`
+3. your `useEffect` runs again
+4. your app fetches appointments for the new date
+5. you pass the fetched appointments back into `appointments`
+
+This is the intended integration pattern:
+
+```tsx
+useEffect(() => {
+  void loadAppointments(selectedDate);
+}, [selectedDate]);
+
+<Scheduler
+  selectedDate={selectedDate}
+  onSelectedDateChange={setSelectedDate}
+  appointments={appointments}
+  resources={resources}
+  adapter={adapter}
+/>
+```
+
+## Core Concepts
+
+### `resources`
+
+Each column in the scheduler is a resource. A resource must have at least:
+
+```ts
+type BaseSchedulerResource<TId> = {
+  id: TId;
+  label: string;
+};
+```
+
+Typical resources:
+
+- staff members
+- rooms
+- desks
+- service stations
+
+### `appointments`
+
+Appointments stay in your own shape. The scheduler reads them through the `adapter`.
+
+### `adapter`
+
+The adapter maps your appointment structure into scheduler fields:
+
+```tsx
+adapter={{
+  getId: (item) => item.id,
+  getResourceId: (item) => item.staffId,
+  getStart: (item) => item.start,
+  getEnd: (item) => item.end,
+  getTitle: (item) => item.title,
+}}
+```
+
+`getStart` and `getEnd` can return either a `Date` or a date string.
+
+## Drag, Resize, and Persistence
+
+Use `onAppointmentChange` as the main integration point for move and resize operations.
+
+It receives:
+
+- `appointment`: the original raw appointment
+- `previous`: the previous resource and time range
+- `next`: the new resource and time range after drop
+- `kind`: `"move"` or `"resize"`
+
+Example:
+
+```tsx
+<Scheduler
+  // ...other props
+  onAppointmentChange={async ({ appointment, next }) => {
+    const nextAppointment = {
+      ...appointment,
+      staffId: next.resourceId,
+      start: next.start.toISOString(),
+      end: next.end.toISOString(),
+    };
+
+    await fetch(`/api/appointments/${appointment.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nextAppointment),
+    });
+  }}
+/>
+```
+
+If you want a small helper for optimistic local state updates, use `applySchedulerAppointmentChange`:
+
+```tsx
+const nextAppointments = applySchedulerAppointmentChange(appointments, change, {
+  getId: (item) => item.id,
+  setResourceId: (item, resourceId) => ({ ...item, staffId: resourceId }),
+  setStart: (item, start) => ({ ...item, start: start.toISOString() }),
+  setEnd: (item, end) => ({ ...item, end: end.toISOString() }),
+});
+```
+
+`onPersistMoveResize` is still available as a legacy callback, but `onAppointmentChange` is the recommended API.
+
+## Styling
+
+The package ships precompiled CSS:
+
+```tsx
+import "@marco.colia/react-fast-scheduler/styles.css";
+```
+
+You can override the exposed CSS variables in your app:
+
+```css
+:root {
+  --rfs-bg: #f8fafc;
+  --rfs-surface: #ffffff;
+  --rfs-border: #e2e8f0;
+  --rfs-text: #0f172a;
+  --rfs-muted: #64748b;
 }
 ```
 
-`renderAppointment` is optional. If you omit it, the scheduler uses the built-in appointment card with light/dark mode support.
-During move drag, the scheduler keeps the original card in place and renders a floating ghost preview by default.
-`renderToolbar` is optional. If you omit it, the scheduler uses a built-in shadcn-style toolbar with prev/next buttons and a calendar popover date picker.
-`renderDatePicker` is optional. If you omit it, the default toolbar uses the built-in calendar popover date picker.
-`onAppointmentChange` is the main integration point for state updates and API persistence.
+### Resource-based colors
 
-Main props you need to pass:
-
-- `resources`: your columns (staff, rooms, etc), each with at least `{ id, label }`.
-- `appointments`: raw items from your backend.
-- `adapter`: functions that map your raw appointment shape to scheduler fields.
-- `onAppointmentChange`: optional generic callback fired after move/resize drop.
-- `onPersistMoveResize`: optional legacy persistence callback (used if `onAppointmentChange` is not provided).
-- `resourceAppointmentClassMap`: optional map of `resourceId -> className` for per-resource appointment colors/styles.
-- `getResourceAppointmentColorToken`: optional function to provide a semantic color token per resource (for example `"amber"`).
-- `appointmentColorTokenClassMap`: optional map to override token -> class resolution.
-- `getResourceAppointmentAppearance`: optional low-level function to provide appointment `className` per resource.
-- `getResourceAppointmentBackground`: legacy optional function to provide appointment background as a string.
-- `renderToolbar`: optional render hook to replace the entire scheduler toolbar/header controls.
-- `prevButtonLabel` and `nextButtonLabel`: custom labels for toolbar navigation buttons.
-- `renderDatePicker`: optional render hook for the date picker slot used by the default toolbar.
-- `renderResourceHeader`: optional render hook for resource column headers.
-- `renderAppointment`: optional render hook to fully customize appointment cards.
-
-If you provide `renderAppointment`, the `appointment` argument also includes:
-
-- `visualState`: `"normal" | "ghost" | "dragging"` so custom renderers can react to drag previews.
-- `renderKey`: an internal stable render key for presentation-layer rendering.
-
-The `renderAppointment` args also include:
-
-- `isDropInvalid`: `true` while the current drag position overlaps another appointment, so custom renderers can show invalid drop feedback.
-
-### Resource classes by id (recommended)
+The simplest option is `resourceAppointmentClassMap`:
 
 ```tsx
 <Scheduler
   // ...other props
   resourceAppointmentClassMap={{
-    "room-a": "bg-yellow-100 dark:bg-yellow-950/40",
-    "room-b": "bg-rose-100 dark:bg-rose-950/40",
+    "1": "bg-amber-100 dark:bg-amber-950/40",
+    "2": "bg-blue-100 dark:bg-blue-950/40",
   }}
 />
 ```
 
-### Resource color tokens (optional)
+If you want semantic mapping, use `getResourceAppointmentColorToken` plus `appointmentColorTokenClassMap`:
 
 ```tsx
 <Scheduler
@@ -179,7 +313,24 @@ The `renderAppointment` args also include:
 />
 ```
 
-### Custom appointment renderer (optional)
+For full control, use `getResourceAppointmentAppearance`.
+
+## Custom Rendering
+
+### Custom appointment card
+
+`renderAppointment` lets you fully replace the built-in card.
+
+The appointment passed to your renderer also includes:
+
+- `visualState`: `"normal" | "ghost" | "dragging"`
+- `renderKey`: an internal render key
+
+The renderer also receives:
+
+- `isDropInvalid`: `true` when the current drag position overlaps another appointment
+- `onPointerDown`: attach this to your appointment root for move interactions
+- `onResizePointerDown`: attach this to your resize handle
 
 ```tsx
 <Scheduler
@@ -208,11 +359,6 @@ The `renderAppointment` args also include:
             }`
       }`}
     >
-      {isDropInvalid ? (
-        <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
-          X
-        </div>
-      ) : null}
       <div className="text-xs font-semibold">{appointment.title}</div>
       {appointment.raw.description ? (
         <div className="mt-1 text-[10px] font-medium text-slate-500">
@@ -222,12 +368,12 @@ The `renderAppointment` args also include:
       <div
         role="button"
         aria-label="Resize appointment"
-        onPointerDown={(e) => {
+        onPointerDown={(event) => {
           if (appointment.visualState === "ghost") {
             return;
           }
-          e.stopPropagation();
-          onResizePointerDown(e);
+          event.stopPropagation();
+          onResizePointerDown(event);
         }}
         className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-slate-300/90 hover:bg-slate-400"
       />
@@ -237,6 +383,10 @@ The `renderAppointment` args also include:
 ```
 
 ### Custom toolbar
+
+If you omit `renderToolbar`, the scheduler renders a built-in toolbar with previous/next navigation and a date picker.
+
+Use `renderToolbar` when you want to replace the whole header:
 
 ```tsx
 <Scheduler
@@ -248,15 +398,11 @@ The `renderAppointment` args also include:
         <div className="text-xs text-muted-foreground">Team schedule</div>
       </div>
       <div className="flex items-center gap-2">
-        <button
-          className="rounded-md border px-3 py-2 text-sm"
-          type="button"
-          onClick={goToPreviousDay}
-        >
+        <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={goToPreviousDay}>
           Previous
         </button>
         {defaultDatePicker}
-        <button className="rounded-md border px-3 py-2 text-sm" type="button" onClick={goToNextDay}>
+        <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={goToNextDay}>
           Next
         </button>
       </div>
@@ -267,62 +413,53 @@ The `renderAppointment` args also include:
 
 ### Custom date picker slot
 
-```tsx
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+If you want to keep the default toolbar but swap the date picker UI, use `renderDatePicker`.
 
+```tsx
 <Scheduler
   // ...other props
   renderDatePicker={({ selectedDate, onSelectedDateChange }) => (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline">{selectedDate.toDateString()}</Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={(date) => date && onSelectedDateChange(date)}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
+    <button type="button" onClick={() => onSelectedDateChange(new Date())}>
+      {selectedDate.toDateString()}
+    </button>
   )}
-/>;
+/>
 ```
 
-## Styles
+## Props Reference
 
-The package ships a precompiled CSS file generated from Tailwind:
+### Required props
 
-```tsx
-import "@marco.colia/react-fast-scheduler/styles.css";
-```
+- `resources`: array of resource objects
+- `appointments`: array of raw appointment objects
+- `selectedDate`: currently visible day
+- `onSelectedDateChange`: controlled date change handler
+- `adapter`: mapper between your appointment shape and scheduler fields
 
-Minimal app entry example:
+### Common optional props
 
-```tsx
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { SchedulerExample } from "./SchedulerExample";
-import "@marco.colia/react-fast-scheduler/styles.css";
+- `onAppointmentChange`: async or sync handler for move and resize persistence
+- `renderToolbar`: replace the full toolbar
+- `renderDatePicker`: replace only the date picker slot used by the default toolbar
+- `renderResourceHeader`: custom resource header renderer
+- `renderAppointment`: custom appointment renderer
+- `resourceAppointmentClassMap`: per-resource class names
+- `getResourceAppointmentColorToken`: semantic color token selector
+- `appointmentColorTokenClassMap`: token-to-class map
+- `getResourceAppointmentAppearance`: low-level class name appearance mapping
+- `getResourceAppointmentBackground`: legacy background string hook
+- `prevButtonLabel`: custom previous button label
+- `nextButtonLabel`: custom next button label
+- `dayStart`: visible schedule start time, for example `"09:00"`
+- `dayEnd`: visible schedule end time, for example `"18:00"`
 
-ReactDOM.createRoot(document.getElementById("root")!).render(<SchedulerExample />);
-```
+## Production Notes
 
-You can override tokens in your app:
-
-```css
-:root {
-  --rfs-bg: #f8fafc;
-  --rfs-surface: #ffffff;
-  --rfs-border: #e2e8f0;
-  --rfs-text: #0f172a;
-  --rfs-muted: #64748b;
-}
-```
+- Keep `selectedDate` in application state and fetch data when it changes.
+- Prefer formatting dates in local time for day-based API queries. `toISOString().slice(0, 10)` can shift the day around midnight because it uses UTC.
+- If persistence fails after a drag or resize, either roll back local state or refetch the visible day.
+- Import the package CSS once at app startup.
 
 ## Development
 
-Repo-specific development notes, local demo usage, quality checks, and release workflow are in [DEVELOPMENT.md](./DEVELOPMENT.md).
+Repo-specific development notes, local demo usage, and release workflow are in [DEVELOPMENT.md](./DEVELOPMENT.md).
