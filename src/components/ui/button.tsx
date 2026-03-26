@@ -5,15 +5,15 @@ type ButtonVariant = "default" | "outline" | "ghost";
 type ButtonSize = "default" | "sm" | "icon";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  default: "bg-primary text-primary-foreground hover:bg-primary/90",
-  outline: "border border-border bg-card text-foreground hover:bg-muted",
-  ghost: "text-foreground hover:bg-muted",
+  default: "rfs:bg-primary rfs:text-primary-foreground rfs:hover:bg-primary/90",
+  outline: "rfs:border rfs:border-border rfs:bg-card rfs:text-foreground rfs:hover:bg-muted",
+  ghost: "rfs:text-foreground rfs:hover:bg-muted",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  default: "h-9 px-4 py-2",
-  sm: "h-8 px-3 text-xs",
-  icon: "h-8 w-8",
+  default: "rfs:h-9 rfs:px-4 rfs:py-2",
+  sm: "rfs:h-8 rfs:px-3 rfs:text-xs",
+  icon: "rfs:h-8 rfs:w-8",
 };
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -30,7 +30,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       ref={ref}
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        "rfs:inline-flex rfs:items-center rfs:justify-center rfs:gap-2 rfs:rounded-md rfs:text-sm rfs:font-medium rfs:whitespace-nowrap rfs:transition-colors rfs:focus-visible:outline-none rfs:focus-visible:ring-2 rfs:focus-visible:ring-ring rfs:focus-visible:ring-offset-2 rfs:disabled:pointer-events-none rfs:disabled:opacity-50",
         variantClasses[variant],
         sizeClasses[size],
         className

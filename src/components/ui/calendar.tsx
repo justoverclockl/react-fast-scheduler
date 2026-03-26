@@ -40,8 +40,8 @@ export function Calendar({
   }
 
   return (
-    <div className="w-72 rounded-md bg-popover">
-      <div className="mb-2 flex items-center justify-between">
+    <div className="rfs:w-72 rfs:rounded-md rfs:bg-popover">
+      <div className="rfs:mb-2 rfs:flex rfs:items-center rfs:justify-between">
         <Button
           variant="ghost"
           size="icon"
@@ -50,7 +50,7 @@ export function Calendar({
         >
           {"<"}
         </Button>
-        <div className="text-sm font-medium">{format(month, "MMMM yyyy")}</div>
+        <div className="rfs:text-sm rfs:font-medium">{format(month, "MMMM yyyy")}</div>
         <Button
           variant="ghost"
           size="icon"
@@ -61,18 +61,18 @@ export function Calendar({
         </Button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
+      <div className="rfs:grid rfs:grid-cols-7 rfs:gap-1 rfs:text-center rfs:text-xs rfs:text-muted-foreground">
         {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((label) => (
           <div
             key={label}
-            className="py-1"
+            className="rfs:py-1"
           >
             {label}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="rfs:grid rfs:grid-cols-7 rfs:gap-1">
         {days.map((day) => {
           const isSelected = selected ? isSameDay(day, selected) : false;
           return (
@@ -81,9 +81,10 @@ export function Calendar({
               variant={isSelected ? "default" : "ghost"}
               size="icon"
               className={cn(
-                "text-xs",
-                !isSameMonth(day, month) && "text-muted-foreground opacity-60",
-                isToday(day) && !isSelected && "border border-border"
+                "rfs:text-xs",
+                !isSameMonth(day, month) &&
+                  "rfs:text-muted-foreground rfs:opacity-60",
+                isToday(day) && !isSelected && "rfs:border rfs:border-border"
               )}
               onClick={() => onSelect?.(day)}
             >

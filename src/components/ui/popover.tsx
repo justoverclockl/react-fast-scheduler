@@ -73,7 +73,7 @@ export function Popover({
 
   return (
     <PopoverContext.Provider value={{ open, setOpen, triggerRef, contentRef }}>
-      <div className="relative inline-flex">{children}</div>
+      <div className="rfs:relative rfs:inline-flex">{children}</div>
     </PopoverContext.Provider>
   );
 }
@@ -135,10 +135,10 @@ export function PopoverContent({
     <div
       ref={contentRef}
       className={cn(
-        "absolute top-full z-50 mt-2 min-w-72 rounded-md border border-border bg-popover p-2 text-popover-foreground shadow-md outline-none",
-        align === "start" && "left-0",
-        align === "center" && "left-1/2 -translate-x-1/2",
-        align === "end" && "right-0",
+        "rfs:absolute rfs:top-full rfs:z-50 rfs:mt-2 rfs:min-w-72 rfs:rounded-md rfs:border rfs:border-border rfs:bg-popover rfs:p-2 rfs:text-popover-foreground rfs:shadow-md rfs:outline-none",
+        align === "start" && "rfs:left-0",
+        align === "center" && "rfs:left-1/2 rfs:-translate-x-1/2",
+        align === "end" && "rfs:right-0",
         className
       )}
     >

@@ -7,7 +7,7 @@ type SlotLineProps = {
 export function SlotLine({ slotIndex }: SlotLineProps) {
   return (
     <div
-      className="rfs-slot-line border-border/50"
+      className="rfs-slot-line rfs:border-border/50"
       style={{ top: TOP_PAD + slotIndex * STEP_MIN * PX_PER_MIN }}
     />
   );

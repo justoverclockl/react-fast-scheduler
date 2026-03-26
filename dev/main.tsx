@@ -39,7 +39,7 @@ function App() {
           goToPreviousDay,
           goToNextDay,
         }) => (
-          <div className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-card p-3 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div className="mb-4 flex flex-col gap-3 rounded-xl bg-card p-3 shadow-sm md:flex-row md:items-center md:justify-between">
             <div>
               <div className="text-sm font-semibold text-foreground">Team schedule</div>
               <div className="text-xs text-muted-foreground">{value.toDateString()}</div>
@@ -107,13 +107,13 @@ function App() {
         }) => (
           <div
             onPointerDown={onPointerDown}
-            className={`relative h-full overflow-hidden rounded-md border p-2 pb-5 text-foreground shadow-sm ${
+            className={`relative h-full overflow-hidden rounded-md p-2 pb-5 text-foreground shadow-sm ${
               appointment.visualState === "dragging" ? "cursor-grabbing" : "cursor-grab"
             } ${
-              appointment.visualState === "ghost" ? "border-dashed opacity-55" : "border-border"
+              appointment.visualState === "ghost" ? "opacity-55" : ""
             } ${
               isDropInvalid
-                ? "border-red-500 bg-red-100/80 ring-1 ring-red-500/60"
+                ? "bg-red-100/80"
                 : (appointmentBackgroundColor ?? "bg-card")
             }`}
           >

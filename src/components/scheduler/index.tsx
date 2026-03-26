@@ -105,7 +105,7 @@ export function Scheduler<
 
   return (
     <section
-      className={`rfs-root rounded-lg bg-background text-foreground ${
+      className={`rfs-root rfs:rounded-lg rfs:bg-background rfs:text-foreground ${
         drag.kind === "move" ? "rfs-root--drag-move" : ""
       } ${drag.kind === "resize" ? "rfs-root--drag-resize" : ""}`}
       onPointerMove={onGlobalPointerMove}
@@ -121,7 +121,7 @@ export function Scheduler<
         renderDatePicker={renderDatePicker}
       />
 
-      <div className="rfs-shell border-border bg-card">
+      <div className="rfs-shell rfs:border-border rfs:bg-card">
         <div style={{ minWidth: gridMinWidth }}>
           <Header
             resources={resources}

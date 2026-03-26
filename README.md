@@ -29,6 +29,10 @@ Import the packaged styles once in your app:
 import "@marco.colia/react-fast-scheduler/styles.css";
 ```
 
+The packaged stylesheet is scoped to the scheduler wrapper, so it does not write theme tokens to your app `:root` or reuse unprefixed Tailwind utility names.
+
+When you pass your own class strings through props like `resourceAppointmentClassMap`, `appointmentColorTokenClassMap`, or a custom `renderAppointment`, those classes belong to your app and can use your own Tailwind setup.
+
 ## Quick Start
 
 The scheduler is a controlled component:
@@ -274,10 +278,10 @@ The package ships precompiled CSS:
 import "@marco.colia/react-fast-scheduler/styles.css";
 ```
 
-You can override the exposed CSS variables in your app:
+You can override the exposed CSS variables on the scheduler wrapper:
 
 ```css
-:root {
+.rfs-root {
   --rfs-bg: #f8fafc;
   --rfs-surface: #ffffff;
   --rfs-border: #e2e8f0;
@@ -285,6 +289,8 @@ You can override the exposed CSS variables in your app:
   --rfs-muted: #64748b;
 }
 ```
+
+If you want a dark override, target `.dark .rfs-root`.
 
 ### Resource-based colors
 
@@ -299,6 +305,8 @@ The simplest option is `resourceAppointmentClassMap`:
   }}
 />
 ```
+
+Those class names are consumer-provided and are expected to come from your app stylesheet or Tailwind build.
 
 If you want semantic mapping, use `getResourceAppointmentColorToken` plus `appointmentColorTokenClassMap`:
 
@@ -345,18 +353,16 @@ The renderer also receives:
   }) => (
     <div
       onPointerDown={onPointerDown}
-      className={`relative h-full overflow-hidden rounded-md border p-2 pb-5 ${
+      className={`relative h-full overflow-hidden rounded-md p-2 pb-5 ${
         appointment.visualState === "ghost"
-          ? "cursor-grab border-dashed opacity-55"
+          ? "cursor-grab opacity-55"
           : appointment.visualState === "dragging"
-            ? "cursor-grabbing opacity-55"
+            ? "cursor-grabbing opacity-55 shadow-sm"
             : "cursor-grab"
       } ${
         isDropInvalid
-          ? "border-red-500 bg-red-100/80 text-red-950 ring-1 ring-red-500/60"
-          : `border-slate-300 ${
-              appointmentAppearance?.className ?? appointmentBackgroundColor ?? "bg-slate-100"
-            }`
+          ? "bg-red-100/80 text-red-950"
+          : appointmentAppearance?.className ?? appointmentBackgroundColor ?? "bg-slate-100"
       }`}
     >
       <div className="text-xs font-semibold">{appointment.title}</div>

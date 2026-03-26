@@ -19,22 +19,24 @@ export function Header<
   TResourceId extends SchedulerId,
 >({ resources, renderResourceHeader }: SchedulerHeaderProps<TResource, TResourceId>) {
   return (
-    <div className="rfs-header border-border bg-card">
+    <div className="rfs-header rfs:border-border rfs:bg-card">
       <div
-        className="rfs-gutter border-border"
+        className="rfs-gutter rfs:border-border"
         style={{ width: GUTTER_W }}
       />
       {resources.map((resource) => (
         <div
           key={String(resource.id)}
-          className="rfs-resource-header border-border bg-card text-foreground"
+          className="rfs-resource-header rfs:border-border rfs:bg-card rfs:text-foreground"
           style={{ minWidth: RESOURCE_MIN_W, flex: 1 }}
         >
           {(renderResourceHeader ?? ((r) => defaultRenderResourceHeader({ resource: r })))(
             resource
           )}
           {isNameLike(resource) ? (
-            <div className="rfs-resource-subtitle text-muted-foreground">{fullName(resource)}</div>
+            <div className="rfs-resource-subtitle rfs:text-muted-foreground">
+              {fullName(resource)}
+            </div>
           ) : null}
         </div>
       ))}
