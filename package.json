@@ -1,6 +1,6 @@
 {
   "name": "@marco.colia/react-fast-scheduler",
-  "version": "2.2.2",
+  "version": "3.0.0",
   "description": "A lightweight React scheduling library.",
   "keywords": [
     "react",

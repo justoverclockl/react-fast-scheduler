@@ -1,5 +1,11 @@
 # react-fast-scheduler
 
+## 3.0.0
+
+### Major Changes
+
+- [#34](https://github.com/justoverclockl/react-fast-scheduler/pull/34) [`1cf5c3f`](https://github.com/justoverclockl/react-fast-scheduler/commit/1cf5c3f59755dae78926c7b647696a8a6e9c7b4a) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Add prefix to tailwind styles anb scope styles for the component
+
 ## 2.2.2
 
 ### Patch Changes
