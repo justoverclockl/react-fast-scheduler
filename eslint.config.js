@@ -13,10 +13,11 @@ const __dirname = dirname(__filename);
 
 export default defineConfig([
   js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.recommended,
   globalIgnores(["coverage/**", "dist/**", "eslint.config.js", "node_modules/**"]),
   {
     files: ["**/*.{ts,tsx}"],
+    extends: tseslint.configs.recommendedTypeChecked,
     languageOptions: {
       globals: {
         ...globals.browser,
