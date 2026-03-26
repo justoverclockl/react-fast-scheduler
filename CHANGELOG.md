@@ -1,5 +1,11 @@
 # react-fast-scheduler
 
+## 2.2.2
+
+### Patch Changes
+
+- [#28](https://github.com/justoverclockl/react-fast-scheduler/pull/28) [`a8efd95`](https://github.com/justoverclockl/react-fast-scheduler/commit/a8efd953c5d12411b8eec95b2e60032767fce0cd) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Better final bundle size
+
 ## 2.2.1
 
 ### Patch Changes
