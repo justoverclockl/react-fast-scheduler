@@ -122,9 +122,20 @@
   --spacing: 0.3rem;
   --rfs-bg: var(--background);
   --rfs-surface: var(--card);
-  --rfs-border: var(--border);
+  --rfs-surface-elevated: color-mix(in oklch, var(--card) 85%, white);
+  --rfs-border: color-mix(in oklch, var(--border) 75%, transparent);
+  --rfs-border-strong: color-mix(in oklch, var(--border) 90%, black 8%);
   --rfs-text: var(--foreground);
   --rfs-muted: var(--muted-foreground);
+  --rfs-accent: color-mix(in oklch, var(--primary) 18%, var(--card));
+  --rfs-shadow-lg: 0 22px 40px -24px hsl(0 0 0 / 0.45),
+    0 10px 16px -12px hsl(0 0 0 / 0.2);
+  --rfs-shadow-md: 0 12px 26px -18px hsl(0 0 0 / 0.35),
+    0 6px 10px -10px hsl(0 0 0 / 0.2);
+  --rfs-shadow-sm: 0 10px 20px -16px hsl(0 0 0 / 0.18),
+    0 4px 6px -6px hsl(0 0 0 / 0.12);
+  --rfs-grid-line: color-mix(in oklch, var(--border) 55%, transparent);
+  --rfs-grid-line-strong: color-mix(in oklch, var(--border) 80%, transparent);
 }
 
 .dark {
@@ -180,14 +191,27 @@
   --shadow-2xl: 0px 10px 20px 0px hsl(0 0 0 / 1);
   --rfs-bg: var(--background);
   --rfs-surface: var(--card);
-  --rfs-border: var(--border);
+  --rfs-surface-elevated: color-mix(in oklch, var(--card) 70%, black);
+  --rfs-border: color-mix(in oklch, var(--border) 70%, transparent);
+  --rfs-border-strong: color-mix(in oklch, var(--border) 85%, white 6%);
   --rfs-text: var(--foreground);
   --rfs-muted: var(--muted-foreground);
+  --rfs-accent: color-mix(in oklch, var(--primary) 22%, var(--card));
+  --rfs-shadow-lg: 0 24px 50px -30px hsl(0 0 0 / 0.75),
+    0 12px 20px -14px hsl(0 0 0 / 0.5);
+  --rfs-shadow-md: 0 18px 40px -26px hsl(0 0 0 / 0.7),
+    0 8px 14px -12px hsl(0 0 0 / 0.45);
+  --rfs-shadow-sm: 0 12px 24px -20px hsl(0 0 0 / 0.6),
+    0 6px 10px -8px hsl(0 0 0 / 0.4);
+  --rfs-grid-line: color-mix(in oklch, var(--border) 45%, transparent);
+  --rfs-grid-line-strong: color-mix(in oklch, var(--border) 70%, transparent);
 }
 
 .rfs-root {
-  @apply text-sm;
+  @apply text-[13px] md:text-sm;
   color: var(--rfs-text);
+  font-feature-settings: "ss01" on, "ss02" on, "cv11" on;
+  font-family: var(--font-sans);
 }
 
 .rfs-root--drag-move {
@@ -203,10 +227,12 @@
 .rfs-card-slot--ghost {
   z-index: 10;
   pointer-events: none;
+  filter: saturate(0.8);
 }
 
 .rfs-card-slot--dragging {
   z-index: 30;
+  transform: translateZ(0) scale(1.01);
 }
 
 .rfs-drag-overlay {
@@ -216,17 +242,18 @@
 }
 
 .rfs-toolbar {
-  @apply mb-3 flex items-center gap-2;
+  @apply mb-4 flex flex-wrap items-center gap-2;
 }
 
 .rfs-btn {
-  @apply rounded-md border px-2 py-1 text-xs transition-colors;
+  @apply rounded-lg border px-2.5 py-1.5 text-xs font-medium transition;
   border-color: var(--rfs-border);
-  background: var(--rfs-surface);
+  background: var(--rfs-surface-elevated);
+  box-shadow: var(--rfs-shadow-sm);
 }
 
 .rfs-btn:hover {
-  background: var(--rfs-bg);
+  background: color-mix(in oklch, var(--rfs-surface-elevated) 82%, white);
 }
 
 .rfs-btn:disabled {
@@ -234,35 +261,38 @@
 }
 
 .rfs-date-label {
-  @apply rounded-md border px-2 py-1 text-xs font-semibold;
+  @apply rounded-lg border px-2.5 py-1.5 text-xs font-semibold;
   border-color: var(--rfs-border);
-  background: var(--rfs-surface);
+  background: linear-gradient(180deg, var(--rfs-surface-elevated), var(--rfs-surface));
+  box-shadow: var(--rfs-shadow-sm);
 }
 
 .rfs-shell {
-  @apply overflow-x-auto rounded-lg border;
+  @apply overflow-x-auto rounded-2xl border;
   border-color: var(--rfs-border);
   background: var(--rfs-surface);
+  box-shadow: var(--rfs-shadow-md);
 }
 
 .rfs-header {
   @apply flex border-b;
   border-color: var(--rfs-border);
+  background: linear-gradient(180deg, color-mix(in oklch, var(--rfs-surface) 92%, white), var(--rfs-surface));
 }
 
 .rfs-gutter {
   @apply sticky left-0 z-20 shrink-0 border-r;
   border-color: var(--rfs-border);
-  background: var(--rfs-surface);
+  background: linear-gradient(180deg, var(--rfs-surface), var(--rfs-surface-elevated));
 }
 
 .rfs-resource-header {
-  @apply border-r px-2 py-2;
+  @apply border-r px-4 py-3 text-sm font-semibold;
   border-color: var(--rfs-border);
 }
 
 .rfs-resource-subtitle {
-  @apply mt-1 text-xs;
+  @apply mt-1 text-[11px] uppercase tracking-wide;
   color: var(--rfs-muted);
 }
 
@@ -273,12 +303,12 @@
 .rfs-times {
   @apply sticky left-0 z-10 relative shrink-0 border-r;
   border-color: var(--rfs-border);
-  background: var(--rfs-surface);
-  box-shadow: 8px 0 12px -12px rgb(0 0 0 / 0.18);
+  background: linear-gradient(180deg, var(--rfs-surface), var(--rfs-surface-elevated));
+  box-shadow: 12px 0 24px -16px rgb(0 0 0 / 0.22);
 }
 
 .rfs-time-tick {
-  @apply absolute left-1 text-[11px];
+  @apply absolute left-2 text-[10px] font-semibold;
   color: var(--rfs-muted);
 }
 
@@ -293,20 +323,30 @@
 
 .rfs-col-inner {
   @apply relative;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--rfs-surface) 94%, white),
+    transparent 55%
+  );
 }
 
 .rfs-hour-line {
-  @apply absolute left-0 right-0 border-t border-dotted;
-  border-color: var(--rfs-border);
-  opacity: 0.5;
+  @apply absolute left-0 right-0 border-t;
+  border-color: var(--rfs-grid-line-strong);
+  opacity: 0.7;
 }
 
 .rfs-slot-line {
   @apply absolute left-0 right-0 border-t border-dotted;
-  border-color: var(--rfs-border);
-  opacity: 0.5;
+  border-color: var(--rfs-grid-line);
+  opacity: 0.45;
 }
 
 .rfs-card-slot {
-  @apply absolute p-0.5;
+  @apply absolute p-1 transition;
+  transition-property: transform, filter;
+}
+
+.rfs-card-slot > * {
+  border-radius: 12px;
 }
