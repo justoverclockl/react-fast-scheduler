@@ -29,6 +29,8 @@ Import the packaged styles once in your app:
 import "@marco.colia/react-fast-scheduler/styles.css";
 ```
 
+The packaged stylesheet is scoped to the scheduler wrapper, so it does not write theme tokens to your app `:root` or reuse unprefixed Tailwind utility names.
+
 ## Quick Start
 
 The scheduler is a controlled component:
@@ -274,10 +276,10 @@ The package ships precompiled CSS:
 import "@marco.colia/react-fast-scheduler/styles.css";
 ```
 
-You can override the exposed CSS variables in your app:
+You can override the exposed CSS variables on the scheduler wrapper:
 
 ```css
-:root {
+.rfs-root {
   --rfs-bg: #f8fafc;
   --rfs-surface: #ffffff;
   --rfs-border: #e2e8f0;
@@ -285,6 +287,8 @@ You can override the exposed CSS variables in your app:
   --rfs-muted: #64748b;
 }
 ```
+
+If you want a dark override, target `.dark .rfs-root`.
 
 ### Resource-based colors
 

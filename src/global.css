@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" prefix(rfs);
 @source "./components/**/*.tsx";
 
 @custom-variant dark (&:is(.dark *));
@@ -63,7 +63,7 @@
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
 }
 
-:root {
+.rfs-root {
   --topbar-h: 39px;
   --header-h: 87px;
   --footer-h: 359px;
@@ -127,7 +127,8 @@
   --rfs-muted: var(--muted-foreground);
 }
 
-.dark {
+.dark .rfs-root,
+.rfs-root.dark {
   --background: oklch(0.2193 0.0122 145.145);
   --foreground: oklch(0.9607 0.0112 141.2631);
   --card: oklch(0.2193 0.0122 145.145);
@@ -186,7 +187,7 @@
 }
 
 .rfs-root {
-  @apply text-sm;
+  @apply rfs:text-sm;
   color: var(--rfs-text);
 }
 
@@ -216,12 +217,12 @@
 }
 
 .rfs-toolbar {
-  @apply mb-3 flex items-center gap-2;
+  @apply rfs:mb-3 rfs:flex rfs:items-center rfs:gap-2;
 }
 
 .rfs-btn {
-  @apply rounded-md border px-2 py-1 text-xs transition-colors;
-  border-color: var(--rfs-border);
+  @apply rfs:rounded-md rfs:border rfs:px-2 rfs:py-1 rfs:text-xs rfs:transition-colors;
+
   background: var(--rfs-surface);
 }
 
@@ -230,83 +231,83 @@
 }
 
 .rfs-btn:disabled {
-  @apply cursor-not-allowed opacity-50;
+  @apply rfs:cursor-not-allowed rfs:opacity-50;
 }
 
 .rfs-date-label {
-  @apply rounded-md border px-2 py-1 text-xs font-semibold;
+  @apply rfs:rounded-md rfs:border rfs:px-2 rfs:py-1 rfs:text-xs rfs:font-semibold;
   border-color: var(--rfs-border);
   background: var(--rfs-surface);
 }
 
 .rfs-shell {
-  @apply overflow-x-auto rounded-lg border;
-  border-color: var(--rfs-border);
+  @apply rfs:overflow-x-auto rfs:rounded-lg rfs:border;
+
   background: var(--rfs-surface);
 }
 
 .rfs-header {
-  @apply flex border-b;
+  @apply rfs:flex rfs:border-b;
   border-color: var(--rfs-border);
 }
 
 .rfs-gutter {
-  @apply sticky left-0 z-20 shrink-0 border-r;
+  @apply rfs:sticky rfs:left-0 rfs:z-20 rfs:shrink-0 rfs:border-r;
   border-color: var(--rfs-border);
   background: var(--rfs-surface);
 }
 
 .rfs-resource-header {
-  @apply border-r px-2 py-2;
+  @apply rfs:border-r rfs:px-2 rfs:py-2;
   border-color: var(--rfs-border);
 }
 
 .rfs-resource-subtitle {
-  @apply mt-1 text-xs;
+  @apply rfs:mt-1 rfs:text-xs;
   color: var(--rfs-muted);
 }
 
 .rfs-body {
-  @apply flex;
+  @apply rfs:flex;
 }
 
 .rfs-times {
-  @apply sticky left-0 z-10 relative shrink-0 border-r;
+  @apply rfs:sticky rfs:left-0 rfs:z-10 rfs:relative rfs:shrink-0 rfs:border-r;
   border-color: var(--rfs-border);
   background: var(--rfs-surface);
   box-shadow: 8px 0 12px -12px rgb(0 0 0 / 0.18);
 }
 
 .rfs-time-tick {
-  @apply absolute left-1 text-[11px];
+  @apply rfs:absolute rfs:left-1 rfs:text-[11px];
   color: var(--rfs-muted);
 }
 
 .rfs-grid {
-  @apply flex flex-1;
+  @apply rfs:flex rfs:flex-1;
 }
 
 .rfs-col {
-  @apply border-r;
+  @apply rfs:border-r;
   border-color: var(--rfs-border);
 }
 
 .rfs-col-inner {
-  @apply relative;
+  @apply rfs:relative;
 }
 
 .rfs-hour-line {
-  @apply absolute left-0 right-0 border-t border-dotted;
+  @apply rfs:absolute rfs:left-0 rfs:right-0 rfs:border-t rfs:border-dotted;
   border-color: var(--rfs-border);
   opacity: 0.5;
 }
 
 .rfs-slot-line {
-  @apply absolute left-0 right-0 border-t border-dotted;
+  @apply rfs:absolute rfs:left-0 rfs:right-0 rfs:border-t rfs:border-dotted;
   border-color: var(--rfs-border);
   opacity: 0.5;
 }
 
 .rfs-card-slot {
-  @apply absolute p-0.5;
+  @apply rfs:absolute rfs:p-0.5;
 }

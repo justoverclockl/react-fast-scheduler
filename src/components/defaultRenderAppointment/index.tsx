@@ -16,17 +16,17 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
   const legacyClassName =
     typeof appointmentBackgroundColor === "string" ? appointmentBackgroundColor : undefined;
   const backgroundClassName =
-    appointmentAppearance?.className ?? legacyClassName ?? "bg-muted/40 dark:bg-muted/30";
+    appointmentAppearance?.className ?? legacyClassName ?? "rfs:bg-muted/40 rfs:dark:bg-muted/30";
   const invalidStateClassName = isDropInvalid
-    ? "border-red-500 bg-red-100/80 text-red-950 ring-1 ring-red-500/60 dark:bg-red-950/40 dark:text-red-100"
+    ? "rfs:bg-red-100/80 rfs:text-red-950 rfs:dark:bg-red-950/40 rfs:dark:text-red-100"
     : "";
   const visualStateClassName =
     appointment.visualState === "ghost"
-      ? "cursor-grab border-dashed opacity-35"
+      ? "rfs:cursor-grab rfs:opacity-35"
       : appointment.visualState === "dragging"
-        ? "cursor-grabbing opacity-55 shadow-xl ring-1 ring-border/70"
-        : "cursor-grab";
-  const className = `relative h-full overflow-hidden rounded-md border border-border p-2 pb-5 text-foreground ${backgroundClassName} ${invalidStateClassName} ${visualStateClassName}`;
+        ? "rfs:cursor-grabbing rfs:opacity-55 rfs:shadow-xl"
+        : "rfs:cursor-grab";
+  const className = `rfs:relative rfs:h-full rfs:overflow-hidden rfs:rounded-md rfs:p-2 rfs:pb-5 rfs:text-foreground ${backgroundClassName} ${invalidStateClassName} ${visualStateClassName}`;
 
   return (
     <div
@@ -34,13 +34,15 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
       className={className}
     >
       {isDropInvalid ? (
-        <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+        <div className="rfs:absolute rfs:right-1 rfs:top-1 rfs:flex rfs:h-4 rfs:w-4 rfs:items-center rfs:justify-center rfs:rounded-full rfs:bg-red-600 rfs:text-[10px] rfs:font-bold rfs:text-white">
           X
         </div>
       ) : null}
-      <div className="text-xs font-semibold">{appointment.title}</div>
+      <div className="rfs:text-xs rfs:font-semibold">{appointment.title}</div>
       {description ? (
-        <div className="mt-1 text-[10px] font-medium text-muted-foreground">{description}</div>
+        <div className="rfs:mt-1 rfs:text-[10px] rfs:font-medium rfs:text-muted-foreground">
+          {description}
+        </div>
       ) : null}
       <div
         role="button"
@@ -52,7 +54,7 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
           event.stopPropagation();
           onResizePointerDown(event);
         }}
-        className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-border/90 transition-colors hover:bg-border"
+        className="rfs:absolute rfs:inset-x-1 rfs:bottom-1 rfs:h-2 rfs:cursor-ns-resize rfs:rounded-full rfs:bg-border/90 rfs:transition-colors rfs:hover:bg-border"
       />
     </div>
   );

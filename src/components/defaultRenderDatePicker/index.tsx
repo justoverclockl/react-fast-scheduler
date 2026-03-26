@@ -17,13 +17,13 @@ export function defaultRenderDatePicker({
         <Button
           variant="outline"
           size="sm"
-          className="min-w-40 justify-start text-left font-normal"
+          className="rfs:min-w-40 rfs:justify-start rfs:text-left rfs:font-normal"
         >
           {format(selectedDate, "PPP")}
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-auto p-2"
+        className="rfs:w-auto rfs:p-2"
         align="center"
       >
         <Calendar

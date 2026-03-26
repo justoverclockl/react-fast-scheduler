@@ -17,7 +17,7 @@ export function defaultRenderToolbar({
 }: DefaultRenderToolbarProps) {
   return (
     <div className="rfs-toolbar">
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1 shadow-xs">
+      <div className="rfs:flex rfs:items-center rfs:gap-2 rfs:rounded-lg rfs:border rfs:border-border rfs:bg-card rfs:p-1 rfs:shadow-xs">
         <Button
           variant="outline"
           size="sm"

@@ -23,27 +23,27 @@ export const ResourceColInner = <TAppointment, TResourceId extends SchedulerId>(
 }: SchedulerResourceColumnProps<TAppointment, TResourceId>) => {
   return (
     <div
-      className="rfs-col border-border bg-card"
+      className="rfs-col rfs:border-border rfs:bg-card"
       style={{ minWidth: RESOURCE_MIN_W, flex: 1 }}
     >
       <div
         ref={(el) => {
           colRefs.current[String(resource.id)] = el;
         }}
-        className="rfs-col-inner bg-card"
+        className="rfs-col-inner rfs:bg-card"
         style={{ height: gridHeight }}
       >
         {Array.from({ length: Math.floor(dayMinutes / 60) + 1 }).map((_, i) => (
           <div
             key={`major-${i}`}
-            className="rfs-hour-line border-border/70"
+            className="rfs-hour-line rfs:border-border/70"
             style={{ top: TOP_PAD + i * 60 * PX_PER_MIN }}
           />
         ))}
         {Array.from({ length: Math.floor(dayMinutes / STEP_MIN) + 1 }).map((_, i) => (
           <div
             key={`minor-${i}`}
-            className="rfs-slot-line border-border/50"
+            className="rfs-slot-line rfs:border-border/50"
             style={{ top: TOP_PAD + i * STEP_MIN * PX_PER_MIN }}
           />
         ))}
