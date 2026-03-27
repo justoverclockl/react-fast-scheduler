@@ -1,5 +1,5 @@
-import React, {FC} from 'react';
 import {CardBodyProps} from "@components/defaultRenderAppointment/parts/types";
+import React, {FC} from 'react';
 
 const CardBody: FC<CardBodyProps> = (props) => {
     const { isDropInvalid, description, title } = props

@@ -1,8 +1,8 @@
+import CardBody from "@components/defaultRenderAppointment/parts/CardBody";
 import ResizeBar from "@components/defaultRenderAppointment/parts/ResizeBar";
 
 import type { DefaultRenderAppointmentProps } from "./types";
 import type { SchedulerId } from "@rfs-types/scheduler";
-import CardBody from "@components/defaultRenderAppointment/parts/CardBody";
 
 export function defaultRenderAppointment<TAppointment, TResourceId extends SchedulerId>({
   appointment,
@@ -35,9 +35,9 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
       className={className}
     >
       <CardBody
-          isDropInvalid={isDropInvalid}
-          title={appointment.title}
-          description={description}
+        isDropInvalid={isDropInvalid}
+        title={appointment.title}
+        description={description}
       />
       <ResizeBar
         onResizePointerDown={onResizePointerDown}
