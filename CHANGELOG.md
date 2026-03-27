@@ -1,5 +1,11 @@
 # react-fast-scheduler
 
+## 3.1.0
+
+### Minor Changes
+
+- [#36](https://github.com/justoverclockl/react-fast-scheduler/pull/36) [`67627bf`](https://github.com/justoverclockl/react-fast-scheduler/commit/67627bf6abf210da7c441816a6cc5bd30a7c2334) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Added global "isEditable" props to make the sheduler read-only based on a boolean flag (useful for RBAC)
+
 ## 3.0.0
 
 ### Major Changes
