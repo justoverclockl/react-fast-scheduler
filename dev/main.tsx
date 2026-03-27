@@ -39,7 +39,7 @@ function App() {
           goToPreviousDay,
           goToNextDay,
         }) => (
-          <div className="mb-4 flex flex-col gap-3 rounded-xl bg-card p-3 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div className="mb-4 flex flex-col gap-3 rounded-xl p-3 shadow-sm md:flex-row md:items-center md:justify-between">
             <div>
               <div className="text-sm font-semibold text-foreground">Team schedule</div>
               <div className="text-xs text-muted-foreground">{value.toDateString()}</div>
@@ -131,7 +131,7 @@ function App() {
             <div
               role="button"
               aria-label="Resize appointment"
-              className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-border/90 transition-colors hover:bg-border"
+              className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-slate-50/60 transition-colors hover:bg-border"
               onPointerDown={(event) => {
                 if (appointment.visualState === "ghost") {
                   return;

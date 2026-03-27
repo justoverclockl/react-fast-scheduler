@@ -1,7 +1,8 @@
-import * as React from "react";
+import ResizeBar from "@components/defaultRenderAppointment/parts/ResizeBar";
 
 import type { DefaultRenderAppointmentProps } from "./types";
 import type { SchedulerId } from "@rfs-types/scheduler";
+import CardBody from "@components/defaultRenderAppointment/parts/CardBody";
 
 export function defaultRenderAppointment<TAppointment, TResourceId extends SchedulerId>({
   appointment,
@@ -33,28 +34,14 @@ export function defaultRenderAppointment<TAppointment, TResourceId extends Sched
       onPointerDown={onPointerDown}
       className={className}
     >
-      {isDropInvalid ? (
-        <div className="rfs:absolute rfs:right-1 rfs:top-1 rfs:flex rfs:h-4 rfs:w-4 rfs:items-center rfs:justify-center rfs:rounded-full rfs:bg-red-600 rfs:text-[10px] rfs:font-bold rfs:text-white">
-          X
-        </div>
-      ) : null}
-      <div className="rfs:text-xs rfs:font-semibold">{appointment.title}</div>
-      {description ? (
-        <div className="rfs:mt-1 rfs:text-[10px] rfs:font-medium rfs:text-muted-foreground">
-          {description}
-        </div>
-      ) : null}
-      <div
-        role="button"
-        aria-label="Resize appointment"
-        onPointerDown={(event) => {
-          if (appointment.visualState === "ghost") {
-            return;
-          }
-          event.stopPropagation();
-          onResizePointerDown(event);
-        }}
-        className="rfs:absolute rfs:inset-x-1 rfs:bottom-1 rfs:h-2 rfs:cursor-ns-resize rfs:rounded-full rfs:bg-border/90 rfs:transition-colors rfs:hover:bg-border"
+      <CardBody
+          isDropInvalid={isDropInvalid}
+          title={appointment.title}
+          description={description}
+      />
+      <ResizeBar
+        onResizePointerDown={onResizePointerDown}
+        appointment={appointment}
       />
     </div>
   );

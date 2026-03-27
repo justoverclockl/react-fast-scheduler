@@ -39,6 +39,7 @@ export function Scheduler<
   nextButtonLabel = "Next",
   dayStart = "09:00",
   dayEnd = "18:00",
+  editable = true
 }: SchedulerProps<TAppointment, TResource, TResourceId>) {
   const { appointmentMap, dayMinutes, dayStartAbs, gridHeight, gridMinWidth, renderAppts } =
     useSchedulerBaseData({ adapter, appointments, dayEnd, dayStart, resources, selectedDate });
@@ -62,6 +63,7 @@ export function Scheduler<
     renderAppts,
     resources,
     selectedDate,
+    editable
   });
 
   const { appointmentAppearanceByResource, appointmentBgByResource, laidOutByResource } =
@@ -105,7 +107,7 @@ export function Scheduler<
 
   return (
     <section
-      className={`rfs-root rfs:rounded-lg rfs:bg-background rfs:text-foreground ${
+      className={`rfs-root rfs:rounded-lg rfs:text-foreground ${
         drag.kind === "move" ? "rfs-root--drag-move" : ""
       } ${drag.kind === "resize" ? "rfs-root--drag-resize" : ""}`}
       onPointerMove={onGlobalPointerMove}

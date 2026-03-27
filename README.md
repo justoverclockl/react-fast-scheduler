@@ -270,6 +270,17 @@ const nextAppointments = applySchedulerAppointmentChange(appointments, change, {
 
 `onPersistMoveResize` is still available as a legacy callback, but `onAppointmentChange` is the recommended API.
 
+If you want to render the scheduler in read-only mode, use `editable={false}`:
+
+```tsx
+<Scheduler
+  // ...other props
+  editable={false}
+/>
+```
+
+When `editable` is `false`, move and resize interactions are disabled.
+
 ## Styling
 
 The package ships precompiled CSS:
@@ -445,6 +456,7 @@ If you want to keep the default toolbar but swap the date picker UI, use `render
 ### Common optional props
 
 - `onAppointmentChange`: async or sync handler for move and resize persistence
+- `editable`: enables or disables move and resize interactions, defaults to `true`
 - `renderToolbar`: replace the full toolbar
 - `renderDatePicker`: replace only the date picker slot used by the default toolbar
 - `renderResourceHeader`: custom resource header renderer

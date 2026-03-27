@@ -57,7 +57,7 @@ export type UseSchedulerInteractionsArgs<
   TResourceId extends SchedulerId,
 > = Pick<
   SchedulerProps<TAppointment, TResource, TResourceId>,
-  "onAppointmentChange" | "onPersistMoveResize" | "resources" | "selectedDate"
+  "onAppointmentChange" | "onPersistMoveResize" | "resources" | "selectedDate" | "editable"
 > & {
   appointmentMap: Map<SchedulerId, SchedulerPresentationAppointment<TAppointment, TResourceId>>;
   dayMinutes: number;

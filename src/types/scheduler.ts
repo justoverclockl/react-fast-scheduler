@@ -142,4 +142,5 @@ export type SchedulerProps<
   nextButtonLabel?: React.ReactNode;
   dayStart?: string;
   dayEnd?: string;
+  editable?: boolean
 };
