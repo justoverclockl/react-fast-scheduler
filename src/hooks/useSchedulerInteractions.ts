@@ -33,6 +33,7 @@ export const useSchedulerInteractions = <
   renderAppts,
   resources,
   selectedDate,
+  editable,
 }: UseSchedulerInteractionsArgs<TAppointment, TResource, TResourceId>): SchedulerInteractions<
   TAppointment,
   TResourceId
@@ -164,6 +165,8 @@ export const useSchedulerInteractions = <
 
   const onApptPointerDown = React.useCallback(
     (event: React.PointerEvent, appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>) => {
+      if (!editable) return
+
       if (event.button !== 0) {
         return;
       }
@@ -192,11 +195,13 @@ export const useSchedulerInteractions = <
         offsetY: event.clientY - rect.top,
       };
     },
-    [pointerToMin]
+    [pointerToMin, editable]
   );
 
   const onResizePointerDown = React.useCallback(
     (event: React.PointerEvent, appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>) => {
+      if (!editable) return;
+
       if (event.button !== 0) {
         return;
       }
@@ -221,7 +226,7 @@ export const useSchedulerInteractions = <
         offsetY: 0,
       };
     },
-    []
+    [editable]
   );
 
   const onGlobalPointerMove = React.useCallback(
