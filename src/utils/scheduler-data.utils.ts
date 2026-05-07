@@ -41,18 +41,19 @@ export function normalizeAppointments<TAppointment, TResourceId extends Schedule
 }: NormalizeAppointmentsArgs<TAppointment, TResourceId>) {
   return appointments
     .map((appointment) => {
+      const id = adapter.getId(appointment);
       const start = new Date(adapter.getStart(appointment));
       const end = new Date(adapter.getEnd(appointment));
       return {
         raw: appointment,
-        id: adapter.getId(appointment),
+        id,
         resourceId: adapter.getResourceId(appointment),
         start,
         end,
         startMin: clamp(minutesFromDayStart(dayStartAbs, start), 0, dayMinutes),
         endMin: clamp(minutesFromDayStart(dayStartAbs, end), 0, dayMinutes),
         title: adapter.getTitle(appointment),
-        renderKey: String(adapter.getId(appointment)),
+        renderKey: String(id),
         visualState: "normal" as const,
       };
     })

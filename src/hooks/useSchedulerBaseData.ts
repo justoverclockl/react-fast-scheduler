@@ -1,5 +1,6 @@
 
 import { BOTTOM_PAD, GUTTER_W, PX_PER_MIN, RESOURCE_MIN_W, TOP_PAD } from "@components/constants";
+import { resolveSchedulerAppointmentAdapter } from "@utils/scheduler-adapter.utils";
 import { dayISO, parseHHMM } from "@utils/scheduler-core.utils";
 import { buildAppointmentMap, normalizeAppointments } from "@utils/scheduler-data.utils";
 import * as React from "react";
@@ -36,17 +37,21 @@ export function useSchedulerBaseData<
     () => GUTTER_W + Math.max(resources.length, 1) * RESOURCE_MIN_W,
     [resources.length]
   );
+  const resolvedAdapter = React.useMemo(
+    () => resolveSchedulerAppointmentAdapter(adapter),
+    [adapter]
+  );
   const selectedISO = React.useMemo(() => dayISO(selectedDate), [selectedDate]);
 
   const renderAppts = React.useMemo(() => {
     return normalizeAppointments({
-      adapter,
+      adapter: resolvedAdapter,
       appointments,
       dayMinutes,
       dayStartAbs,
       selectedISO,
     });
-  }, [adapter, appointments, dayMinutes, dayStartAbs, selectedISO]);
+  }, [appointments, dayMinutes, dayStartAbs, resolvedAdapter, selectedISO]);
 
   const appointmentMap = React.useMemo(() => buildAppointmentMap(renderAppts), [renderAppts]);
 

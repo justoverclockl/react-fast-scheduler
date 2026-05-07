@@ -8,6 +8,28 @@ export type SchedulerAppointmentAdapter<TAppointment, TResourceId extends string
   getTitle: (item: TAppointment) => string;
 };
 
+export type SchedulerAppointmentField<TAppointment, TValue> =
+  | Extract<keyof TAppointment, string | number>
+  | ((item: TAppointment) => TValue);
+
+export type SchedulerAppointmentFieldAdapter<
+  TAppointment,
+  TResourceId extends string | number,
+> = {
+  id: SchedulerAppointmentField<TAppointment, number | string>;
+  resourceId: SchedulerAppointmentField<TAppointment, TResourceId>;
+  start: SchedulerAppointmentField<TAppointment, Date | string>;
+  end: SchedulerAppointmentField<TAppointment, Date | string>;
+  title: SchedulerAppointmentField<TAppointment, string>;
+};
+
+export type SchedulerAppointmentAdapterInput<
+  TAppointment,
+  TResourceId extends string | number,
+> =
+  | SchedulerAppointmentAdapter<TAppointment, TResourceId>
+  | SchedulerAppointmentFieldAdapter<TAppointment, TResourceId>;
+
 export type SchedulerId = string | number;
 
 export type BaseSchedulerResource<TId extends SchedulerId = number> = {
@@ -65,6 +87,12 @@ export type RenderSchedulerAppt<TAppointment, TResourceId extends SchedulerId> =
 export type SchedulerAppointmentChangeArgs<TAppointment, TResourceId extends SchedulerId> = {
   kind: "move" | "resize";
   appointment: TAppointment;
+  resourceId?: TResourceId;
+  start?: Date;
+  end?: Date;
+  previousResourceId?: TResourceId;
+  previousStart?: Date;
+  previousEnd?: Date;
   previous: {
     resourceId: TResourceId;
     start: Date;
@@ -75,6 +103,18 @@ export type SchedulerAppointmentChangeArgs<TAppointment, TResourceId extends Sch
     start: Date;
     end: Date;
   };
+};
+
+export type SchedulerAppointmentChangeEvent<
+  TAppointment,
+  TResourceId extends SchedulerId,
+> = SchedulerAppointmentChangeArgs<TAppointment, TResourceId> & {
+  resourceId: TResourceId;
+  start: Date;
+  end: Date;
+  previousResourceId: TResourceId;
+  previousStart: Date;
+  previousEnd: Date;
 };
 
 export type SchedulerAppointmentAppearance = {
@@ -100,7 +140,7 @@ export type SchedulerProps<
   appointments: TAppointment[];
   selectedDate: Date;
   onSelectedDateChange: (date: Date) => void;
-  adapter: SchedulerAppointmentAdapter<TAppointment, TResourceId>;
+  adapter: SchedulerAppointmentAdapterInput<TAppointment, TResourceId>;
   onPersistMoveResize?: (args: {
     appointment: TAppointment;
     resourceId: TResourceId;
@@ -108,7 +148,7 @@ export type SchedulerProps<
     end: Date;
   }) => Promise<void> | void;
   onAppointmentChange?: (
-    args: SchedulerAppointmentChangeArgs<TAppointment, TResourceId>
+    args: SchedulerAppointmentChangeEvent<TAppointment, TResourceId>
   ) => Promise<void> | void;
   renderResourceHeader?: (resource: TResource) => React.ReactNode;
   renderAppointment?: (args: {
@@ -142,5 +182,5 @@ export type SchedulerProps<
   nextButtonLabel?: React.ReactNode;
   dayStart?: string;
   dayEnd?: string;
-  editable?: boolean
+  editable?: boolean;
 };
