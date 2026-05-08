@@ -1,5 +1,11 @@
 # react-fast-scheduler
 
+## 3.2.0
+
+### Minor Changes
+
+- [#38](https://github.com/justoverclockl/react-fast-scheduler/pull/38) [`8801308`](https://github.com/justoverclockl/react-fast-scheduler/commit/8801308386a80694e4c3fbb9fc29b0d8bd909ec9) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Add key-based appointment adapters and optimistic appointment change helpers while preserving the existing getter and setter APIs.
+
 ## 3.1.0
 
 ### Minor Changes
