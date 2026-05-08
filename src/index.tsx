@@ -6,8 +6,12 @@ export type {
   SchedulerResourceClassMap,
   SchedulerAppointmentVisualState,
   SchedulerAppointmentChangeArgs,
+  SchedulerAppointmentChangeEvent,
   SchedulerAppointmentAdapter,
+  SchedulerAppointmentAdapterInput,
   SchedulerDragState,
+  SchedulerAppointmentField,
+  SchedulerAppointmentFieldAdapter,
   SchedulerEvent,
   SchedulerId,
   SchedulerPresentationAppointment,
@@ -15,5 +19,10 @@ export type {
   SchedulerProps,
 } from "./types";
 export { Scheduler } from "@components/scheduler";
+export { resolveSchedulerAppointmentAdapter } from "@utils/scheduler-adapter.utils";
 export { applySchedulerAppointmentChange } from "@utils/scheduler-appointment-change.utils";
-export type { ApplySchedulerAppointmentChangeOptions } from "@utils/scheduler-appointment-change.utils";
+export type {
+  ApplySchedulerAppointmentChangeFieldOptions,
+  ApplySchedulerAppointmentChangeInput,
+  ApplySchedulerAppointmentChangeOptions,
+} from "@utils/scheduler-appointment-change.utils";

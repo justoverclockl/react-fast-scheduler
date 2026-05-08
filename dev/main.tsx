@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 
-import { Scheduler } from "../src";
+import { Scheduler, applySchedulerAppointmentChange } from "../src";
 import "../src/global.css";
 import { Button } from "../src/components/ui/button";
 import { Calendar } from "../src/components/ui/calendar";
@@ -27,11 +27,11 @@ function App() {
         selectedDate={selectedDate}
         onSelectedDateChange={setSelectedDate}
         adapter={{
-          getId: (item) => item.id,
-          getResourceId: (item) => item.resourceId,
-          getStart: (item) => item.start,
-          getEnd: (item) => item.end,
-          getTitle: (item) => item.title,
+          id: "id",
+          resourceId: "resourceId",
+          start: "start",
+          end: "end",
+          title: "title",
         }}
         renderToolbar={({
           selectedDate: value,
@@ -82,66 +82,19 @@ function App() {
             </div>
           </div>
         )}
-        onAppointmentChange={async ({ next, appointment }) => {
+        onAppointmentChange={(change) => {
           setAppointments((prev) =>
-            prev.map((item) =>
-              item.id === appointment.id
-                ? {
-                    ...item,
-                    resourceId: next.resourceId,
-                    start: next.start.toISOString(),
-                    end: next.end.toISOString(),
-                  }
-                : item
-            )
+            applySchedulerAppointmentChange(prev, change, {
+              id: "id",
+              resourceId: "resourceId",
+              start: "start",
+              end: "end",
+              dateValue: (date) => date.toISOString(),
+            })
           );
         }}
         getResourceAppointmentBackground={(resource) => resource.appointmentColorClass}
         renderResourceHeader={(resource) => <strong className="text-sm">{resource.label}</strong>}
-        renderAppointment={({
-          appointment,
-          isDropInvalid,
-          onPointerDown,
-          onResizePointerDown,
-          appointmentBackgroundColor,
-        }) => (
-          <div
-            onPointerDown={onPointerDown}
-            className={`relative h-full overflow-hidden rounded-md p-2 pb-5 text-foreground shadow-sm ${
-              appointment.visualState === "dragging" ? "cursor-grabbing" : "cursor-grab"
-            } ${
-              appointment.visualState === "ghost" ? "opacity-55" : ""
-            } ${
-              isDropInvalid
-                ? "bg-red-100/80"
-                : (appointmentBackgroundColor ?? "bg-card")
-            }`}
-          >
-            {isDropInvalid ? (
-              <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
-                X
-              </div>
-            ) : null}
-            <div className="text-xs font-semibold leading-tight">{appointment.title}</div>
-            {appointment.raw.description ? (
-              <div className="mt-1 text-[10px] font-medium tracking-wide text-muted-foreground">
-                {appointment.raw.description}
-              </div>
-            ) : null}
-            <div
-              role="button"
-              aria-label="Resize appointment"
-              className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-slate-50/60 transition-colors hover:bg-border"
-              onPointerDown={(event) => {
-                if (appointment.visualState === "ghost") {
-                  return;
-                }
-                event.stopPropagation();
-                onResizePointerDown(event);
-              }}
-            />
-          </div>
-        )}
       />
     </div>
   );

@@ -8,7 +8,7 @@ A lightweight React day scheduler for resource-based booking UIs.
 - drag and resize interactions
 - date navigation with a built-in toolbar and date picker
 - customizable appointment rendering
-- a simple adapter layer for your backend data
+- a simple field adapter layer for your backend data
 
 ![Scheduler demo](https://res.cloudinary.com/dt74zb1rv/image/upload/v1774457086/Video_del_2026-03-25_17-35-51_kuflee.gif)
 
@@ -48,7 +48,7 @@ import {
   Scheduler,
   applySchedulerAppointmentChange,
   type BaseSchedulerResource,
-  type SchedulerAppointmentChangeArgs,
+  type SchedulerAppointmentChangeEvent,
 } from "@marco.colia/react-fast-scheduler";
 import "@marco.colia/react-fast-scheduler/styles.css";
 
@@ -103,13 +103,14 @@ export const SchedulerExample = () => {
   };
 
   const handleAppointmentChange = async (
-    change: SchedulerAppointmentChangeArgs<Appointment, number>
+    change: SchedulerAppointmentChangeEvent<Appointment, number>
   ) => {
     const optimisticAppointments = applySchedulerAppointmentChange(appointments, change, {
-      getId: (item) => item.id,
-      setResourceId: (item, resourceId) => ({ ...item, staffId: resourceId }),
-      setStart: (item, start) => ({ ...item, start: start.toISOString() }),
-      setEnd: (item, end) => ({ ...item, end: end.toISOString() }),
+      id: "id",
+      resourceId: "staffId",
+      start: "start",
+      end: "end",
+      dateValue: (date) => date.toISOString(),
     });
 
     setAppointments(optimisticAppointments);
@@ -144,11 +145,11 @@ export const SchedulerExample = () => {
       selectedDate={selectedDate}
       onSelectedDateChange={setSelectedDate}
       adapter={{
-        getId: (item) => item.id,
-        getResourceId: (item) => item.staffId,
-        getStart: (item) => item.start,
-        getEnd: (item) => item.end,
-        getTitle: (item) => `${item.customerName} - ${item.title}`,
+        id: "id",
+        resourceId: "staffId",
+        start: "start",
+        end: "end",
+        title: (item) => `${item.customerName} - ${item.title}`,
       }}
       onAppointmentChange={handleAppointmentChange}
       dayStart="09:00"
@@ -210,7 +211,33 @@ Appointments stay in your own shape. The scheduler reads them through the `adapt
 
 ### `adapter`
 
-The adapter maps your appointment structure into scheduler fields:
+The simplest adapter maps appointment object fields by key:
+
+```tsx
+adapter={{
+  id: "id",
+  resourceId: "staffId",
+  start: "start",
+  end: "end",
+  title: "title",
+}}
+```
+
+Each field can also be a function when you need to derive a value:
+
+```tsx
+adapter={{
+  id: "id",
+  resourceId: "staffId",
+  start: "start",
+  end: "end",
+  title: (item) => `${item.customerName} - ${item.title}`,
+}}
+```
+
+Start and end fields can resolve to either a `Date` or a date string.
+
+The older getter adapter is still supported:
 
 ```tsx
 adapter={{
@@ -222,8 +249,6 @@ adapter={{
 }}
 ```
 
-`getStart` and `getEnd` can return either a `Date` or a date string.
-
 ## Drag, Resize, and Persistence
 
 Use `onAppointmentChange` as the main integration point for move and resize operations.
@@ -231,6 +256,8 @@ Use `onAppointmentChange` as the main integration point for move and resize oper
 It receives:
 
 - `appointment`: the original raw appointment
+- `resourceId`, `start`, and `end`: the new values after drop
+- `previousResourceId`, `previousStart`, and `previousEnd`: the values before drag or resize
 - `previous`: the previous resource and time range
 - `next`: the new resource and time range after drop
 - `kind`: `"move"` or `"resize"`
@@ -240,12 +267,12 @@ Example:
 ```tsx
 <Scheduler
   // ...other props
-  onAppointmentChange={async ({ appointment, next }) => {
+  onAppointmentChange={async ({ appointment, resourceId, start, end }) => {
     const nextAppointment = {
       ...appointment,
-      staffId: next.resourceId,
-      start: next.start.toISOString(),
-      end: next.end.toISOString(),
+      staffId: resourceId,
+      start: start.toISOString(),
+      end: end.toISOString(),
     };
 
     await fetch(`/api/appointments/${appointment.id}`, {
@@ -261,12 +288,15 @@ If you want a small helper for optimistic local state updates, use `applySchedul
 
 ```tsx
 const nextAppointments = applySchedulerAppointmentChange(appointments, change, {
-  getId: (item) => item.id,
-  setResourceId: (item, resourceId) => ({ ...item, staffId: resourceId }),
-  setStart: (item, start) => ({ ...item, start: start.toISOString() }),
-  setEnd: (item, end) => ({ ...item, end: end.toISOString() }),
+  id: "id",
+  resourceId: "staffId",
+  start: "start",
+  end: "end",
+  dateValue: (date) => date.toISOString(),
 });
 ```
+
+The previous setter-based helper options are still supported for non-object data or custom immutable updates.
 
 `onPersistMoveResize` is still available as a legacy callback, but `onAppointmentChange` is the recommended API.
 
@@ -451,11 +481,11 @@ If you want to keep the default toolbar but swap the date picker UI, use `render
 - `appointments`: array of raw appointment objects
 - `selectedDate`: currently visible day
 - `onSelectedDateChange`: controlled date change handler
-- `adapter`: mapper between your appointment shape and scheduler fields
+- `adapter`: key-based or getter-based mapper between your appointment shape and scheduler fields
 
 ### Common optional props
 
-- `onAppointmentChange`: async or sync handler for move and resize persistence
+- `onAppointmentChange`: async or sync handler for move and resize persistence; receives both flat next values and the nested `previous`/`next` objects
 - `editable`: enables or disables move and resize interactions, defaults to `true`
 - `renderToolbar`: replace the full toolbar
 - `renderDatePicker`: replace only the date picker slot used by the default toolbar
@@ -476,6 +506,7 @@ If you want to keep the default toolbar but swap the date picker UI, use `render
 - Keep `selectedDate` in application state and fetch data when it changes.
 - Prefer formatting dates in local time for day-based API queries. `toISOString().slice(0, 10)` can shift the day around midnight because it uses UTC.
 - If persistence fails after a drag or resize, either roll back local state or refetch the visible day.
+- For large schedules, keep `resources`, `appointments`, adapter objects, and render callbacks stable when their data has not changed so React can reuse scheduler calculations.
 - Import the package CSS once at app startup.
 
 ## Development

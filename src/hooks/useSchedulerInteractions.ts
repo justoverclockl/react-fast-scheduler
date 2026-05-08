@@ -49,6 +49,21 @@ export const useSchedulerInteractions = <
   const latestPointerRef = React.useRef<PointerSnapshot | null>(null);
   const frameRef = React.useRef<number | null>(null);
 
+  const appointmentsByResource = React.useMemo(() => {
+    const map = new Map<
+      TResourceId,
+      SchedulerPresentationAppointment<TAppointment, TResourceId>[]
+    >();
+
+    for (const appointment of renderAppts) {
+      const resourceAppointments = map.get(appointment.resourceId) ?? [];
+      resourceAppointments.push(appointment);
+      map.set(appointment.resourceId, resourceAppointments);
+    }
+
+    return map;
+  }, [renderAppts]);
+
   React.useEffect(() => {
     dragRef.current = drag;
   }, [drag]);
@@ -95,14 +110,13 @@ export const useSchedulerInteractions = <
 
   const hasOverlap = React.useCallback(
     (appointmentId: SchedulerId, resourceId: TResourceId, startMin: number, endMin: number) => {
-      const events = renderAppts.filter(
-        (appointment) => appointment.resourceId === resourceId && appointment.id !== appointmentId
-      );
-      return events.some((appointment) =>
+      const appointments = appointmentsByResource.get(resourceId) ?? [];
+      return appointments.some((appointment) =>
+        appointment.id !== appointmentId &&
         overlaps(appointment, { id: appointmentId, startMin, endMin })
       );
     },
-    [renderAppts]
+    [appointmentsByResource]
   );
 
   const isDropInvalid = React.useMemo(() => {
@@ -134,6 +148,12 @@ export const useSchedulerInteractions = <
         await onAppointmentChange({
           kind: state.kind,
           appointment: target.raw,
+          resourceId: next.resourceId,
+          start: next.start,
+          end: next.end,
+          previousResourceId: target.resourceId,
+          previousStart: target.start,
+          previousEnd: target.end,
           previous: {
             resourceId: target.resourceId,
             start: target.start,
