@@ -1,5 +1,15 @@
 # react-fast-scheduler
 
+## 4.1.0
+
+### Minor Changes
+
+- [`9c5489c`](https://github.com/justoverclockl/react-fast-scheduler/commit/9c5489cb4321ab3692dceafd73556be14a8f38f4) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Refactor of Agenda views for more readability
+
+### Patch Changes
+
+- [`9c5489c`](https://github.com/justoverclockl/react-fast-scheduler/commit/9c5489cb4321ab3692dceafd73556be14a8f38f4) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Agenda view: each resource column is now a compact list of its appointments ordered by start time, instead of a 15-minute grid. Empty slots and the time sidebar are gone; each card still shows its start and end time (exact minutes, e.g. `10:15–11:48`).
+
 ## 4.0.0
 
 ### Major Changes
