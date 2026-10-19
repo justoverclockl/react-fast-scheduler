@@ -12,18 +12,26 @@ type SchedulerHeaderProps<
 > = {
   resources: TResource[];
   renderResourceHeader?: (resource: TResource) => React.ReactNode;
+  /** Empty cell above the time gutter; the agenda has no gutter. */
+  showGutter?: boolean;
 };
 
 export function Header<
   TResource extends BaseSchedulerResource<TResourceId>,
   TResourceId extends SchedulerId,
->({ resources, renderResourceHeader }: SchedulerHeaderProps<TResource, TResourceId>) {
+>({
+  resources,
+  renderResourceHeader,
+  showGutter = true,
+}: SchedulerHeaderProps<TResource, TResourceId>) {
   return (
     <div className="rfs-header rfs:border-border rfs:bg-card">
-      <div
-        className="rfs-gutter rfs:border-border"
-        style={{ width: GUTTER_W }}
-      />
+      {showGutter && (
+        <div
+          className="rfs-gutter rfs:border-border"
+          style={{ width: GUTTER_W }}
+        />
+      )}
       {resources.map((resource) => (
         <div
           key={String(resource.id)}

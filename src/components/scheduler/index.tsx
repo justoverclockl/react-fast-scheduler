@@ -64,7 +64,7 @@ export function Scheduler<
     onViewChange,
   });
 
-  const { appointmentMap, dayEndAbs, dayMinutes, dayStartAbs, gridHeight, gridMinWidth, renderAppts } =
+  const { appointmentMap, dayMinutes, dayStartAbs, gridHeight, gridMinWidth, renderAppts } =
     useSchedulerBaseData({ adapter, appointments, dayEnd, dayStart, resources, selectedDate });
 
   const {
@@ -155,8 +155,6 @@ export function Scheduler<
           appointments={renderAppts}
           resources={resources}
           appointmentAppearanceByResource={appointmentAppearanceByResource}
-          dayStartAbs={dayStartAbs}
-          dayEndAbs={dayEndAbs}
           onAppointmentClick={onAppointmentClick}
           renderResourceHeader={renderResourceHeader}
           renderAgendaItem={renderAgendaItem}

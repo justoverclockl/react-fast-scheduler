@@ -390,9 +390,9 @@ It receives your original appointment object and the click event. It is not call
 
 ## Views
 
-Besides the default resource grid (`"day"`), the scheduler has an `"agenda"` view: a compact table of the selected day with one row every 15 minutes and one column per resource. The times stay visible in a sidebar on the left while you scroll horizontally, and each cell lists the appointments that start in that 15-minute slot, ordered by start time.
+Besides the default resource grid (`"day"`), the scheduler has an `"agenda"` view: a compact view of the selected day with one column per resource. Each column lists that resource's appointments one after the other, ordered by start time, with no empty slots between them; each card shows its start and end time.
 
-Unlike the grid, cards are not sized by duration: each row grows to fit its appointments, so overlapping or short appointments stay readable.
+Unlike the grid, cards are not sized by duration, so overlapping or short appointments stay readable.
 
 Enable it with `views`. When more than one view is listed, the built-in toolbar shows a view switcher:
 
@@ -410,7 +410,7 @@ The agenda uses the same data as the grid, so your data loading does not change:
 In the agenda:
 
 - column headers use the same `renderResourceHeader` as the grid
-- rows cover every 15-minute slot from `dayStart` to `dayEnd`, extended if an appointment starts outside that range
+- each column is a plain list: free time is not shown, so cards in different columns are not aligned by time
 - rows use the same colors as the grid cards (see [Styling](#styling))
 - `onAppointmentClick` works on each row
 - move and resize are not available

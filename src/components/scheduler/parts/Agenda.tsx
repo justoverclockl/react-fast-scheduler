@@ -1,4 +1,4 @@
-import { GUTTER_W, RESOURCE_MIN_W, STEP_MIN } from "@components/constants";
+import { RESOURCE_MIN_W } from "@components/constants";
 import { cn } from "@lib/cn";
 import { format } from "date-fns";
 import * as React from "react";
@@ -21,8 +21,6 @@ type AgendaProps<
   appointments: SchedulerPresentationAppointment<TAppointment, TResourceId>[];
   resources: TResource[];
   appointmentAppearanceByResource: Map<TResourceId, SchedulerAppointmentAppearance | undefined>;
-  dayStartAbs: number;
-  dayEndAbs: number;
   onAppointmentClick?: (appointment: TAppointment, event: React.MouseEvent<HTMLElement>) => void;
   renderResourceHeader?: (resource: TResource) => React.ReactNode;
   renderAgendaItem?: (
@@ -32,11 +30,6 @@ type AgendaProps<
 };
 
 const formatTime = (date: Date) => format(date, "HH:mm");
-const pad = (value: number) => String(value).padStart(2, "0");
-const formatSlot = (minute: number) => `${pad(Math.floor(minute / 60))}:${pad(minute % 60)}`;
-/** Start of the slot (minutes from midnight) that contains the given date. */
-const slotOf = (date: Date) => Math.floor((date.getHours() * 60 + date.getMinutes()) / STEP_MIN) * STEP_MIN;
-const cellKey = (slot: number, resourceId: SchedulerId) => `${slot}|${String(resourceId)}`;
 
 function DefaultAgendaItem<TAppointment, TResourceId extends SchedulerId>({
   appointment,
@@ -48,11 +41,15 @@ function DefaultAgendaItem<TAppointment, TResourceId extends SchedulerId>({
 
   return (
     <>
-      <span className="rfs:block rfs:text-xs rfs:font-medium rfs:tabular-nums">
+      <span className="rfs:block rfs:text-sm rfs:font-bold rfs:tabular-nums">
         {formatTime(appointment.start)}–{formatTime(appointment.end)}
       </span>
-      <span className="rfs:block rfs:text-xs rfs:font-semibold">{appointment.title}</span>
-      {description && <span className="rfs:block rfs:text-[10px] rfs:font-medium">{description}</span>}
+      <span className="rfs:mt-0.5 rfs:block rfs:text-base rfs:leading-snug rfs:font-semibold">
+        {appointment.title}
+      </span>
+      {description && (
+        <span className="rfs:mt-0.5 rfs:block rfs:text-xs rfs:font-medium rfs:opacity-80">{description}</span>
+      )}
     </>
   );
 }
@@ -65,42 +62,23 @@ export function Agenda<
   appointments,
   resources,
   appointmentAppearanceByResource,
-  dayStartAbs,
-  dayEndAbs,
   onAppointmentClick,
   renderResourceHeader,
   renderAgendaItem,
   emptyState = "No appointments",
 }: AgendaProps<TAppointment, TResource, TResourceId>) {
-  // One row per STEP_MIN slot, one cell per resource; each cell lists the appointments starting in that slot.
+  // One column per resource, listing its appointments by start time with no empty slots.
   // Appointments without a matching resource are not shown, like in the grid.
-  const { slots, cells } = React.useMemo(() => {
-    const resourceIds = new Set(resources.map((resource) => resource.id));
-    const visible = appointments
-      .filter((appointment) => resourceIds.has(appointment.resourceId))
-      .sort((a, b) => a.start.getTime() - b.start.getTime());
-
-    const map = new Map<string, SchedulerPresentationAppointment<TAppointment, TResourceId>[]>();
-    for (const appointment of visible) {
-      const key = cellKey(slotOf(appointment.start), appointment.resourceId);
-      const cell = map.get(key) ?? [];
-      cell.push(appointment);
-      map.set(key, cell);
-    }
-
-    // Always show dayStart..dayEnd, extended if an appointment falls outside it.
-    const startSlots = visible.map((appointment) => slotOf(appointment.start));
-    const firstSlot = Math.min(Math.floor(dayStartAbs / STEP_MIN) * STEP_MIN, ...startSlots);
-    const lastSlot = Math.max(Math.ceil(dayEndAbs / STEP_MIN) * STEP_MIN - STEP_MIN, ...startSlots);
-    const slotList = Array.from(
-      { length: Math.max(0, (lastSlot - firstSlot) / STEP_MIN + 1) },
-      (_, index) => firstSlot + index * STEP_MIN
+  const byResource = React.useMemo(() => {
+    const map = new Map<TResourceId, SchedulerPresentationAppointment<TAppointment, TResourceId>[]>(
+      resources.map((resource) => [resource.id, []])
     );
+    for (const appointment of appointments) map.get(appointment.resourceId)?.push(appointment);
+    for (const list of map.values()) list.sort((a, b) => a.start.getTime() - b.start.getTime());
+    return map;
+  }, [appointments, resources]);
 
-    return { slots: slotList, cells: map };
-  }, [appointments, resources, dayStartAbs, dayEndAbs]);
-
-  const hasAppointments = cells.size > 0;
+  const hasAppointments = [...byResource.values()].some((list) => list.length > 0);
 
   if (!hasAppointments) {
     return (
@@ -156,49 +134,24 @@ export function Agenda<
 
   return (
     <div className="rfs-agenda rfs-shell rfs:border-border rfs:bg-card">
-      <div style={{ minWidth: GUTTER_W + Math.max(resources.length, 1) * RESOURCE_MIN_W }}>
+      <div style={{ minWidth: Math.max(resources.length, 1) * RESOURCE_MIN_W }}>
         <Header
           resources={resources}
           renderResourceHeader={renderResourceHeader}
+          showGutter={false}
         />
-        {slots.map((slot) => {
-          const isHourStart = slot % 60 === 0;
-          // Solid line at the end of each hour, lighter line between quarters (like the grid).
-          // Inline because `.rfs-col` / `.rfs-gutter` set their own border color.
-          const borderBottomColor =
-            (slot + STEP_MIN) % 60 === 0
-              ? "var(--rfs-border)"
-              : "color-mix(in oklab, var(--rfs-border) 40%, transparent)";
-
-          return (
-            <div
-              key={slot}
-              className="rfs:flex"
+        <div className="rfs:flex">
+          {resources.map((resource) => (
+            <ul
+              key={String(resource.id)}
+              aria-label={resource.label}
+              className="rfs-col rfs:flex rfs:flex-col rfs:gap-1 rfs:p-1"
+              style={{ minWidth: RESOURCE_MIN_W, flex: 1 }}
             >
-              <div
-                className={cn(
-                  "rfs-gutter rfs:border-b rfs:px-2 rfs:py-1 rfs:text-xs rfs:tabular-nums",
-                  isHourStart ? "rfs:text-foreground" : "rfs:text-muted-foreground/70"
-                )}
-                style={{ width: GUTTER_W, borderBottomColor }}
-              >
-                {formatSlot(slot)}
-              </div>
-              {resources.map((resource) => (
-                <ul
-                  key={String(resource.id)}
-                  aria-label={resource.label}
-                  className="rfs-col rfs:flex rfs:min-h-7 rfs:flex-col rfs:gap-1 rfs:border-b rfs:p-1"
-                  style={{ minWidth: RESOURCE_MIN_W, flex: 1, borderBottomColor }}
-                >
-                  {(cells.get(cellKey(slot, resource.id)) ?? []).map((appointment) =>
-                    renderItem(appointment, resource)
-                  )}
-                </ul>
-              ))}
-            </div>
-          );
-        })}
+              {(byResource.get(resource.id) ?? []).map((appointment) => renderItem(appointment, resource))}
+            </ul>
+          ))}
+        </div>
       </div>
     </div>
   );
