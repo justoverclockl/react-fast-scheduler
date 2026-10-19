@@ -38,6 +38,7 @@ function App() {
           onSelectedDateChange,
           goToPreviousDay,
           goToNextDay,
+          defaultViewSwitcher,
         }) => (
           <div className="mb-4 flex flex-col gap-3 rounded-xl p-3 shadow-sm md:flex-row md:items-center md:justify-between">
             <div>
@@ -79,6 +80,7 @@ function App() {
               >
                 Avanti
               </Button>
+              {defaultViewSwitcher}
             </div>
           </div>
         )}
@@ -95,6 +97,9 @@ function App() {
         }}
         getResourceAppointmentBackground={(resource) => resource.appointmentColorClass}
         renderResourceHeader={(resource) => <strong className="text-sm">{resource.label}</strong>}
+        views={["day", "agenda"]}
+        viewLabels={{ day: "Giorno", agenda: "Agenda" }}
+        agendaEmptyState="Nessun appuntamento"
       />
     </div>
   );

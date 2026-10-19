@@ -19,6 +19,7 @@ const areResourceColsEqual = <TAppointment, TResourceId extends SchedulerId>(
     prev.appointmentBg === next.appointmentBg,
     prev.isDropInvalid === next.isDropInvalid,
     prev.renderAppointment === next.renderAppointment,
+    prev.onAppointmentClick === next.onAppointmentClick,
     prev.onApptPointerDown === next.onApptPointerDown,
     prev.onResizePointerDown === next.onResizePointerDown,
     prev.drag === next.drag,

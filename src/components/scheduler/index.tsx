@@ -3,16 +3,24 @@ import { defaultRenderAppointment } from "@components/defaultRenderAppointment";
 import { useSchedulerBaseData } from "@hooks/useSchedulerBaseData";
 import { useSchedulerInteractions } from "@hooks/useSchedulerInteractions";
 import { useSchedulerPresentationData } from "@hooks/useSchedulerPresentationData";
+import { useSchedulerView } from "@hooks/useSchedulerView";
 import * as React from "react";
 
+import { Agenda } from "./parts/Agenda";
 import { Gutter } from "./parts/Gutter";
 import { Header } from "./parts/Header";
 import { ResourceCol } from "./parts/ResourceCol";
 import { Toolbar } from "./parts/Toolbar";
 
-import type { BaseSchedulerResource, SchedulerId, SchedulerProps } from "@rfs-types";
+import type {
+  BaseSchedulerResource,
+  SchedulerId,
+  SchedulerProps,
+  SchedulerView,
+} from "@rfs-types";
 
 const IDLE_DRAG = { kind: "none" } as const;
+const DEFAULT_VIEWS: SchedulerView[] = ["day"];
 
 export function Scheduler<
   TAppointment,
@@ -26,6 +34,7 @@ export function Scheduler<
   adapter,
   onPersistMoveResize,
   onAppointmentChange,
+  onAppointmentClick,
   renderResourceHeader,
   renderAppointment,
   resourceAppointmentClassMap,
@@ -39,9 +48,23 @@ export function Scheduler<
   nextButtonLabel = "Next",
   dayStart = "09:00",
   dayEnd = "18:00",
-  editable = true
+  editable = true,
+  views = DEFAULT_VIEWS,
+  view: controlledView,
+  defaultView,
+  onViewChange,
+  viewLabels,
+  renderAgendaItem,
+  agendaEmptyState,
 }: SchedulerProps<TAppointment, TResource, TResourceId>) {
-  const { appointmentMap, dayMinutes, dayStartAbs, gridHeight, gridMinWidth, renderAppts } =
+  const [view, handleViewChange] = useSchedulerView({
+    views,
+    view: controlledView,
+    defaultView,
+    onViewChange,
+  });
+
+  const { appointmentMap, dayEndAbs, dayMinutes, dayStartAbs, gridHeight, gridMinWidth, renderAppts } =
     useSchedulerBaseData({ adapter, appointments, dayEnd, dayStart, resources, selectedDate });
 
   const {
@@ -121,8 +144,25 @@ export function Scheduler<
         nextButtonLabel={nextButtonLabel}
         renderToolbar={renderToolbar}
         renderDatePicker={renderDatePicker}
+        view={view}
+        views={views}
+        onViewChange={handleViewChange}
+        viewLabels={viewLabels}
       />
 
+      {view === "agenda" ? (
+        <Agenda
+          appointments={renderAppts}
+          resources={resources}
+          appointmentAppearanceByResource={appointmentAppearanceByResource}
+          dayStartAbs={dayStartAbs}
+          dayEndAbs={dayEndAbs}
+          onAppointmentClick={onAppointmentClick}
+          renderResourceHeader={renderResourceHeader}
+          renderAgendaItem={renderAgendaItem}
+          emptyState={agendaEmptyState}
+        />
+      ) : (
       <div className="rfs-shell rfs:border-border rfs:bg-card">
         <div style={{ minWidth: gridMinWidth }}>
           <Header
@@ -148,6 +188,7 @@ export function Scheduler<
                   appointmentBg={appointmentBgByResource.get(resource.id)}
                   isDropInvalid={isDropInvalid}
                   renderAppointment={renderAppointment}
+                  onAppointmentClick={onAppointmentClick}
                   onApptPointerDown={onApptPointerDown}
                   onResizePointerDown={onResizePointerDown}
                   drag={drag.kind === "resize" && drag.resourceId === resource.id ? drag : IDLE_DRAG}
@@ -158,6 +199,7 @@ export function Scheduler<
           </div>
         </div>
       </div>
+      )}
       {moveOverlay ? (
         <div
           className="rfs-drag-overlay"

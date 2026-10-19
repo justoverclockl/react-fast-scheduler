@@ -1,11 +1,12 @@
 import type { SchedulerLayoutAppointment } from "@rfs-types/internal";
 import type {
   BaseSchedulerResource,
+  SchedulerAppointmentAdapterOption,
   SchedulerAppointmentAppearance,
   SchedulerDragState,
   SchedulerId,
   SchedulerPresentationAppointment,
-  SchedulerProps,
+  SchedulerCommonProps,
 } from "@rfs-types/scheduler";
 import type * as React from "react";
 
@@ -44,9 +45,10 @@ export type UseSchedulerBaseDataArgs<
   TResource extends BaseSchedulerResource<TResourceId>,
   TResourceId extends SchedulerId,
 > = Pick<
-  SchedulerProps<TAppointment, TResource, TResourceId>,
-  "adapter" | "appointments" | "resources" | "selectedDate" | "dayEnd" | "dayStart"
+  SchedulerCommonProps<TAppointment, TResource, TResourceId>,
+  "appointments" | "resources" | "selectedDate" | "dayEnd" | "dayStart"
 > & {
+  adapter?: SchedulerAppointmentAdapterOption<TAppointment, TResourceId>;
   dayEnd?: string;
   dayStart?: string;
 };
@@ -56,7 +58,7 @@ export type UseSchedulerInteractionsArgs<
   TResource extends BaseSchedulerResource<TResourceId>,
   TResourceId extends SchedulerId,
 > = Pick<
-  SchedulerProps<TAppointment, TResource, TResourceId>,
+  SchedulerCommonProps<TAppointment, TResource, TResourceId>,
   "onAppointmentChange" | "onPersistMoveResize" | "resources" | "selectedDate" | "editable"
 > & {
   appointmentMap: Map<SchedulerId, SchedulerPresentationAppointment<TAppointment, TResourceId>>;
@@ -70,7 +72,7 @@ export type UseSchedulerPresentationDataArgs<
   TResource extends BaseSchedulerResource<TResourceId>,
   TResourceId extends SchedulerId,
 > = Pick<
-  SchedulerProps<TAppointment, TResource, TResourceId>,
+  SchedulerCommonProps<TAppointment, TResource, TResourceId>,
   | "appointmentColorTokenClassMap"
   | "getResourceAppointmentAppearance"
   | "getResourceAppointmentBackground"

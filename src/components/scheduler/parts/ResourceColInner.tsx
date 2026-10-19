@@ -16,6 +16,7 @@ export const ResourceColInner = <TAppointment, TResourceId extends SchedulerId>(
   appointmentBg,
   isDropInvalid,
   renderAppointment,
+  onAppointmentClick,
   onApptPointerDown,
   onResizePointerDown,
   drag,
@@ -66,6 +67,17 @@ export const ResourceColInner = <TAppointment, TResourceId extends SchedulerId>(
                 width: `${laneWidthPct}%`,
                 height,
               }}
+              onClick={
+                onAppointmentClick
+                  ? (event) => {
+                      // A drag or resize that just ended also fires a click: ignore it.
+                      if (suppressClickRef.current) {
+                        return;
+                      }
+                      onAppointmentClick(appointment.raw, event);
+                    }
+                  : undefined
+              }
             >
               {(renderAppointment ?? defaultRenderAppointment)({
                 appointment,

@@ -12,6 +12,7 @@ export function defaultRenderToolbar({
   goToPreviousDay,
   goToNextDay,
   defaultDatePicker,
+  defaultViewSwitcher,
   prevButtonLabel = "Prev",
   nextButtonLabel = "Next",
 }: DefaultRenderToolbarProps) {
@@ -34,6 +35,7 @@ export function defaultRenderToolbar({
           {nextButtonLabel}
         </Button>
       </div>
+      {defaultViewSwitcher && <div className="rfs:ml-auto">{defaultViewSwitcher}</div>}
     </div>
   );
 }

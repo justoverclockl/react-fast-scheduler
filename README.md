@@ -35,6 +35,45 @@ When you pass your own class strings through props like `resourceAppointmentClas
 
 ## Quick Start
 
+If your appointments already use the field names `id`, `resourceId`, `start`, `end`, and `title`, you do not need an adapter:
+
+```tsx
+import { useState } from "react";
+import { Scheduler, applySchedulerAppointmentChange } from "@marco.colia/react-fast-scheduler";
+import "@marco.colia/react-fast-scheduler/styles.css";
+
+const resources = [
+  { id: 1, label: "Alice" },
+  { id: 2, label: "Bob" },
+];
+
+export const MinimalScheduler = () => {
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [appointments, setAppointments] = useState([
+    { id: 1, resourceId: 1, title: "Haircut", start: "2026-03-27T09:00:00", end: "2026-03-27T10:00:00" },
+  ]);
+
+  return (
+    <Scheduler
+      resources={resources}
+      appointments={appointments}
+      selectedDate={selectedDate}
+      onSelectedDateChange={setSelectedDate}
+      onAppointmentChange={(change) =>
+        setAppointments((prev) =>
+          applySchedulerAppointmentChange(prev, change, {
+            dateValue: (date) => date.toISOString(),
+          })
+        )
+      }
+      onAppointmentClick={(appointment) => console.log("clicked", appointment)}
+    />
+  );
+};
+```
+
+### Full example with a backend
+
 The scheduler is a controlled component:
 
 - your app owns `selectedDate`
@@ -105,11 +144,9 @@ export const SchedulerExample = () => {
   const handleAppointmentChange = async (
     change: SchedulerAppointmentChangeEvent<Appointment, number>
   ) => {
+    // `id`, `start`, and `end` use the default names, so only `resourceId` needs mapping.
     const optimisticAppointments = applySchedulerAppointmentChange(appointments, change, {
-      id: "id",
       resourceId: "staffId",
-      start: "start",
-      end: "end",
       dateValue: (date) => date.toISOString(),
     });
 
@@ -145,10 +182,7 @@ export const SchedulerExample = () => {
       selectedDate={selectedDate}
       onSelectedDateChange={setSelectedDate}
       adapter={{
-        id: "id",
         resourceId: "staffId",
-        start: "start",
-        end: "end",
         title: (item) => `${item.customerName} - ${item.title}`,
       }}
       onAppointmentChange={handleAppointmentChange}
@@ -211,7 +245,25 @@ Appointments stay in your own shape. The scheduler reads them through the `adapt
 
 ### `adapter`
 
-The simplest adapter maps appointment object fields by key:
+The adapter tells the scheduler which appointment fields to read. Every field has a default:
+
+| Field        | Default        | Expected value      |
+| ------------ | -------------- | ------------------- |
+| `id`         | `"id"`         | `string \| number`  |
+| `resourceId` | `"resourceId"` | the resource `id`   |
+| `start`      | `"start"`      | `Date \| string`    |
+| `end`        | `"end"`        | `Date \| string`    |
+| `title`      | `"title"`      | `string`            |
+
+If your appointments already use those names, omit `adapter` entirely. Otherwise map only the fields that differ:
+
+```tsx
+adapter={{ resourceId: "staffId" }}
+```
+
+TypeScript checks this: `adapter` (or a single field) is only optional when your appointment type has a matching field under the default name. Otherwise you get a compile error instead of empty cards at runtime.
+
+You can still map every field by key:
 
 ```tsx
 adapter={{
@@ -236,6 +288,8 @@ adapter={{
 ```
 
 Start and end fields can resolve to either a `Date` or a date string.
+
+Key-based adapters can be written inline: the scheduler compares the field values, not the object identity, so an inline `adapter={{ ... }}` does not trigger extra recalculations. If you use function fields, keep them stable (define them outside the component or with `useCallback`).
 
 The older getter adapter is still supported:
 
@@ -284,17 +338,22 @@ Example:
 />
 ```
 
-If you want a small helper for optimistic local state updates, use `applySchedulerAppointmentChange`:
+If you want a small helper for optimistic local state updates, use `applySchedulerAppointmentChange`. Like the adapter, it defaults to the `id`, `resourceId`, `start`, and `end` fields, so you only map what differs:
 
 ```tsx
+// Appointments with the default field names, stored as Date objects
+const nextAppointments = applySchedulerAppointmentChange(appointments, change);
+
+// Different resource field, dates stored as ISO strings
 const nextAppointments = applySchedulerAppointmentChange(appointments, change, {
-  id: "id",
   resourceId: "staffId",
-  start: "start",
-  end: "end",
   dateValue: (date) => date.toISOString(),
 });
 ```
+
+Without `dateValue`, `start` and `end` are written as `Date` objects. Pass `dateValue` when your data stores dates as strings.
+
+Drops that would overlap another appointment on the same resource are rejected: the card is shown in red while dragging and `onAppointmentChange` is not called.
 
 The previous setter-based helper options are still supported for non-object data or custom immutable updates.
 
@@ -310,6 +369,95 @@ If you want to render the scheduler in read-only mode, use `editable={false}`:
 ```
 
 When `editable` is `false`, move and resize interactions are disabled.
+
+## Clicking Appointments
+
+Use `onAppointmentClick` to open a detail view or an edit form:
+
+```tsx
+<Scheduler
+  // ...other props
+  onAppointmentClick={(appointment, event) => {
+    setSelectedAppointment(appointment);
+  }}
+/>
+```
+
+It receives your original appointment object and the click event. It is not called at the end of a drag or resize, and it works with both the built-in card and a custom `renderAppointment`. It also works when `editable` is `false`.
+
+## Views
+
+Besides the default resource grid (`"day"`), the scheduler has an `"agenda"` view: a compact table of the selected day with one row every 15 minutes and one column per resource. The times stay visible in a sidebar on the left while you scroll horizontally, and each cell lists the appointments that start in that 15-minute slot, ordered by start time.
+
+Unlike the grid, cards are not sized by duration: each row grows to fit its appointments, so overlapping or short appointments stay readable.
+
+Enable it with `views`. When more than one view is listed, the built-in toolbar shows a view switcher:
+
+```tsx
+<Scheduler
+  // ...other props
+  views={["day", "agenda"]}
+/>
+```
+
+Without `views`, only the grid is available and no switcher is shown, exactly as before.
+
+The agenda uses the same data as the grid, so your data loading does not change: the toolbar still moves one day at a time and calls `onSelectedDateChange`.
+
+In the agenda:
+
+- column headers use the same `renderResourceHeader` as the grid
+- rows cover every 15-minute slot from `dayStart` to `dayEnd`, extended if an appointment starts outside that range
+- rows use the same colors as the grid cards (see [Styling](#styling))
+- `onAppointmentClick` works on each row
+- move and resize are not available
+- appointments whose `resourceId` does not match a resource are not shown, like in the grid
+- when the whole day has no appointments, `agendaEmptyState` is shown instead of the columns
+
+### Controlling the view
+
+By default the scheduler keeps the current view in its own state. Use `defaultView` to choose the initial view, or `view` + `onViewChange` to control it from your app (for example to save it in the URL):
+
+```tsx
+const [view, setView] = useState<SchedulerView>("agenda");
+
+<Scheduler
+  // ...other props
+  views={["day", "agenda"]}
+  view={view}
+  onViewChange={setView}
+/>
+```
+
+### Labels and empty state
+
+```tsx
+<Scheduler
+  // ...other props
+  views={["day", "agenda"]}
+  viewLabels={{ day: "Giorno", agenda: "Agenda" }}
+  agendaEmptyState="Nessun appuntamento"
+/>
+```
+
+### Custom agenda rows
+
+Use `renderAgendaItem` to replace the content of each agenda row. It receives the normalized `appointment` (with `title`, `start`, `end`, and your original object in `raw`), the `resource` of its column, and the resolved `appointmentAppearance`:
+
+```tsx
+<Scheduler
+  // ...other props
+  views={["day", "agenda"]}
+  renderAgendaItem={({ appointment, appointmentAppearance }) => (
+    <div className={`flex gap-3 rounded-md p-2 ${appointmentAppearance?.className ?? ""}`}>
+      <span>{appointment.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+      <strong>{appointment.title}</strong>
+    </div>
+  )}
+/>
+```
+
+With a custom row, `onAppointmentClick` is still called when the row is clicked. If the row should be reachable by keyboard, render a `<button>` inside it.
 
 ## Styling
 
@@ -362,7 +510,24 @@ If you want semantic mapping, use `getResourceAppointmentColorToken` plus `appoi
 />
 ```
 
+Built-in tokens (`slate`, `gray`, `zinc`, `neutral`, `stone`, `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`, `teal`, `cyan`, `sky`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink`, `rose`) ship with the packaged stylesheet, so they work without Tailwind in your app:
+
+```tsx
+<Scheduler
+  // ...other props
+  getResourceAppointmentColorToken={(resource) => (resource.id === 1 ? "blue" : "rose")}
+/>
+```
+
 For full control, use `getResourceAppointmentAppearance`.
+
+When a resource matches more than one option, the first match wins:
+
+1. `resourceAppointmentClassMap`
+2. `getResourceAppointmentAppearance`
+3. `getResourceAppointmentColorToken` (+ `appointmentColorTokenClassMap`)
+4. `getResourceAppointmentBackground` (legacy)
+5. the built-in neutral background
 
 ## Custom Rendering
 
@@ -379,7 +544,7 @@ The renderer also receives:
 
 - `isDropInvalid`: `true` when the current drag position overlaps another appointment
 - `onPointerDown`: attach this to your appointment root for move interactions
-- `onResizePointerDown`: attach this to your resize handle
+- `onResizePointerDown`: attach this to your resize handle; it already stops propagation, so the move handler does not fire
 
 ```tsx
 <Scheduler
@@ -415,13 +580,7 @@ The renderer also receives:
       <div
         role="button"
         aria-label="Resize appointment"
-        onPointerDown={(event) => {
-          if (appointment.visualState === "ghost") {
-            return;
-          }
-          event.stopPropagation();
-          onResizePointerDown(event);
-        }}
+        onPointerDown={onResizePointerDown}
         className="absolute inset-x-1 bottom-1 h-2 cursor-ns-resize rounded-full bg-slate-300/90 hover:bg-slate-400"
       />
     </div>
@@ -458,6 +617,8 @@ Use `renderToolbar` when you want to replace the whole header:
 />
 ```
 
+`renderToolbar` also receives `view`, `views`, `onViewChange`, and `defaultViewSwitcher` (the built-in switcher, or `null` when fewer than two views are enabled). Render `{defaultViewSwitcher}` in your toolbar to keep the view switch, or build your own with `views` and `onViewChange`.
+
 ### Custom date picker slot
 
 If you want to keep the default toolbar but swap the date picker UI, use `renderDatePicker`.
@@ -481,11 +642,12 @@ If you want to keep the default toolbar but swap the date picker UI, use `render
 - `appointments`: array of raw appointment objects
 - `selectedDate`: currently visible day
 - `onSelectedDateChange`: controlled date change handler
-- `adapter`: key-based or getter-based mapper between your appointment shape and scheduler fields
+- `adapter`: key-based or getter-based mapper between your appointment shape and scheduler fields; optional when your appointments use the default field names (see [`adapter`](#adapter))
 
 ### Common optional props
 
 - `onAppointmentChange`: async or sync handler for move and resize persistence; receives both flat next values and the nested `previous`/`next` objects
+- `onAppointmentClick`: called with the raw appointment and the click event on a plain click (not after a drag or resize)
 - `editable`: enables or disables move and resize interactions, defaults to `true`
 - `renderToolbar`: replace the full toolbar
 - `renderDatePicker`: replace only the date picker slot used by the default toolbar
@@ -500,13 +662,20 @@ If you want to keep the default toolbar but swap the date picker UI, use `render
 - `nextButtonLabel`: custom next button label
 - `dayStart`: visible schedule start time, for example `"09:00"`
 - `dayEnd`: visible schedule end time, for example `"18:00"`
+- `views`: views offered by the switcher, for example `["day", "agenda"]`; defaults to `["day"]` (no switcher)
+- `view`: controlled current view (`"day"` or `"agenda"`)
+- `defaultView`: initial view when `view` is not controlled; defaults to the first entry of `views`
+- `onViewChange`: called when the user picks a view in the switcher
+- `viewLabels`: switcher labels, for example `{ day: "Giorno", agenda: "Agenda" }`
+- `renderAgendaItem`: custom agenda row content
+- `agendaEmptyState`: content shown in the agenda when the day has no appointments, defaults to `"No appointments"`
 
 ## Production Notes
 
 - Keep `selectedDate` in application state and fetch data when it changes.
 - Prefer formatting dates in local time for day-based API queries. `toISOString().slice(0, 10)` can shift the day around midnight because it uses UTC.
 - If persistence fails after a drag or resize, either roll back local state or refetch the visible day.
-- For large schedules, keep `resources`, `appointments`, adapter objects, and render callbacks stable when their data has not changed so React can reuse scheduler calculations.
+- For large schedules, keep `resources`, `appointments`, adapter function fields, and render/click callbacks stable when their data has not changed so React can reuse scheduler calculations. Key-based adapters can stay inline.
 - Import the package CSS once at app startup.
 
 ## Development

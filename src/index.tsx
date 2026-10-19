@@ -9,6 +9,11 @@ export type {
   SchedulerAppointmentChangeEvent,
   SchedulerAppointmentAdapter,
   SchedulerAppointmentAdapterInput,
+  SchedulerAppointmentAdapterOption,
+  SchedulerAppointmentPartialFieldAdapter,
+  SchedulerDefaultedAppointmentField,
+  SchedulerAdapterProp,
+  SchedulerCommonProps,
   SchedulerDragState,
   SchedulerAppointmentField,
   SchedulerAppointmentFieldAdapter,
@@ -16,6 +21,8 @@ export type {
   SchedulerId,
   SchedulerPresentationAppointment,
   SchedulerToolbarRenderArgs,
+  SchedulerView,
+  SchedulerAgendaItemRenderArgs,
   SchedulerProps,
 } from "./types";
 export { Scheduler } from "@components/scheduler";

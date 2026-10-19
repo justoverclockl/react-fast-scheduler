@@ -1,6 +1,9 @@
 
 import { BOTTOM_PAD, GUTTER_W, PX_PER_MIN, RESOURCE_MIN_W, TOP_PAD } from "@components/constants";
-import { resolveSchedulerAppointmentAdapter } from "@utils/scheduler-adapter.utils";
+import {
+  resolveSchedulerAppointmentAdapter,
+  toSchedulerAppointmentFields,
+} from "@utils/scheduler-adapter.utils";
 import { dayISO, parseHHMM } from "@utils/scheduler-core.utils";
 import { buildAppointmentMap, normalizeAppointments } from "@utils/scheduler-data.utils";
 import * as React from "react";
@@ -37,9 +40,11 @@ export function useSchedulerBaseData<
     () => GUTTER_W + Math.max(resources.length, 1) * RESOURCE_MIN_W,
     [resources.length]
   );
+  // Memoize by field values, not object identity, so an inline `adapter={{ ... }}` stays cheap.
+  const { id, resourceId, start, end, title } = toSchedulerAppointmentFields(adapter);
   const resolvedAdapter = React.useMemo(
-    () => resolveSchedulerAppointmentAdapter(adapter),
-    [adapter]
+    () => resolveSchedulerAppointmentAdapter({ id, resourceId, start, end, title }),
+    [id, resourceId, start, end, title]
   );
   const selectedISO = React.useMemo(() => dayISO(selectedDate), [selectedDate]);
 

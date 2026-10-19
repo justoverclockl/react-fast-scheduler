@@ -1,5 +1,6 @@
 @import "tailwindcss" prefix(rfs);
 @source "./components/**/*.tsx";
+@source "./utils/**/*.ts";
 
 @custom-variant dark (&:is(.dark *));
 

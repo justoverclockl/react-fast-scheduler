@@ -69,6 +69,7 @@ export type SchedulerResourceColumnProps<TAppointment, TResourceId extends Sched
     drag: SchedulerDragState<TResourceId>;
     suppressClickRef: React.RefObject<boolean>;
   }) => React.ReactNode;
+  onAppointmentClick?: (appointment: TAppointment, event: React.MouseEvent<HTMLElement>) => void;
   onApptPointerDown: (
     event: React.PointerEvent,
     appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>

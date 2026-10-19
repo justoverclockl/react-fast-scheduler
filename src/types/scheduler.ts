@@ -32,6 +32,45 @@ export type SchedulerAppointmentAdapterInput<
 
 export type SchedulerId = string | number;
 
+type SchedulerDefaultFieldValues<TResourceId extends SchedulerId> = {
+  id: SchedulerId;
+  resourceId: TResourceId;
+  start: Date | string;
+  end: Date | string;
+  title: string;
+};
+
+/** Adapter fields the appointment already exposes under the default name with a compatible type. */
+export type SchedulerDefaultedAppointmentField<TAppointment, TResourceId extends SchedulerId> = {
+  [K in keyof SchedulerDefaultFieldValues<TResourceId>]: K extends keyof TAppointment
+    ? TAppointment[K] extends SchedulerDefaultFieldValues<TResourceId>[K]
+      ? K
+      : never
+    : never;
+}[keyof SchedulerDefaultFieldValues<TResourceId>];
+
+/**
+ * Key-based adapter where fields matching the default names
+ * (`id`, `resourceId`, `start`, `end`, `title`) can be omitted.
+ */
+export type SchedulerAppointmentPartialFieldAdapter<
+  TAppointment,
+  TResourceId extends SchedulerId,
+> = Omit<
+  SchedulerAppointmentFieldAdapter<TAppointment, TResourceId>,
+  SchedulerDefaultedAppointmentField<TAppointment, TResourceId>
+> &
+  Partial<
+    Pick<
+      SchedulerAppointmentFieldAdapter<TAppointment, TResourceId>,
+      SchedulerDefaultedAppointmentField<TAppointment, TResourceId>
+    >
+  >;
+
+export type SchedulerAppointmentAdapterOption<TAppointment, TResourceId extends SchedulerId> =
+  | SchedulerAppointmentAdapter<TAppointment, TResourceId>
+  | SchedulerAppointmentPartialFieldAdapter<TAppointment, TResourceId>;
+
 export type BaseSchedulerResource<TId extends SchedulerId = number> = {
   id: TId;
   label: string;
@@ -123,15 +162,51 @@ export type SchedulerAppointmentAppearance = {
 
 export type SchedulerAppointmentColorToken = string;
 export type SchedulerResourceClassMap = Partial<Record<string, string>>;
+
+/** `"day"` is the resource grid; `"agenda"` is a time-ordered list of the selected day. */
+export type SchedulerView = "day" | "agenda";
+
+export type SchedulerAgendaItemRenderArgs<
+  TAppointment,
+  TResource extends BaseSchedulerResource<TResourceId>,
+  TResourceId extends SchedulerId,
+> = {
+  appointment: SchedulerEvent<TAppointment, TResourceId>;
+  resource: TResource;
+  appointmentAppearance?: SchedulerAppointmentAppearance;
+};
+
 export type SchedulerToolbarRenderArgs = {
   selectedDate: Date;
   onSelectedDateChange: (date: Date) => void;
   goToPreviousDay: () => void;
   goToNextDay: () => void;
   defaultDatePicker: React.ReactNode;
+  view: SchedulerView;
+  views: SchedulerView[];
+  onViewChange: (view: SchedulerView) => void;
+  /** Built-in view switcher, or `null` when fewer than two views are enabled. */
+  defaultViewSwitcher: React.ReactNode;
 };
 
+/** `adapter` is optional only when every field can fall back to its default name. */
+export type SchedulerAdapterProp<TAppointment, TResourceId extends SchedulerId> = [
+  Exclude<
+    keyof SchedulerDefaultFieldValues<TResourceId>,
+    SchedulerDefaultedAppointmentField<TAppointment, TResourceId>
+  >,
+] extends [never]
+  ? { adapter?: SchedulerAppointmentAdapterOption<TAppointment, TResourceId> }
+  : { adapter: SchedulerAppointmentAdapterOption<TAppointment, TResourceId> };
+
 export type SchedulerProps<
+  TAppointment,
+  TResource extends BaseSchedulerResource<TResourceId>,
+  TResourceId extends SchedulerId,
+> = SchedulerCommonProps<TAppointment, TResource, TResourceId> &
+  SchedulerAdapterProp<TAppointment, TResourceId>;
+
+export type SchedulerCommonProps<
   TAppointment,
   TResource extends BaseSchedulerResource<TResourceId>,
   TResourceId extends SchedulerId,
@@ -140,7 +215,8 @@ export type SchedulerProps<
   appointments: TAppointment[];
   selectedDate: Date;
   onSelectedDateChange: (date: Date) => void;
-  adapter: SchedulerAppointmentAdapterInput<TAppointment, TResourceId>;
+  /** Called on a plain click (not after a drag or resize). */
+  onAppointmentClick?: (appointment: TAppointment, event: React.MouseEvent<HTMLElement>) => void;
   onPersistMoveResize?: (args: {
     appointment: TAppointment;
     resourceId: TResourceId;
@@ -183,4 +259,17 @@ export type SchedulerProps<
   dayStart?: string;
   dayEnd?: string;
   editable?: boolean;
+  /** Views offered by the built-in switcher. Defaults to `["day"]` (no switcher). */
+  views?: SchedulerView[];
+  /** Controlled view. */
+  view?: SchedulerView;
+  /** Initial view when `view` is not controlled. Defaults to the first entry of `views`. */
+  defaultView?: SchedulerView;
+  onViewChange?: (view: SchedulerView) => void;
+  viewLabels?: Partial<Record<SchedulerView, React.ReactNode>>;
+  renderAgendaItem?: (
+    args: SchedulerAgendaItemRenderArgs<TAppointment, TResource, TResourceId>
+  ) => React.ReactNode;
+  /** Shown in the agenda view when the selected day has no appointments. */
+  agendaEmptyState?: React.ReactNode;
 };

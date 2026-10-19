@@ -30,32 +30,33 @@ export function fromInputDateValue(value: string): Date | null {
   return new Date(year, month - 1, day);
 }
 
+// Prefixed so the classes ship in the packaged stylesheet (the `rfs:` Tailwind prefix).
 export const DEFAULT_APPOINTMENT_COLOR_TOKEN_CLASS_MAP: Record<
   SchedulerAppointmentColorToken,
   string
 > = {
-  slate: "bg-slate-100 dark:bg-slate-900/40",
-  gray: "bg-gray-100 dark:bg-gray-900/40",
-  zinc: "bg-zinc-100 dark:bg-zinc-900/40",
-  neutral: "bg-neutral-100 dark:bg-neutral-900/40",
-  stone: "bg-stone-100 dark:bg-stone-900/40",
-  red: "bg-red-100 dark:bg-red-950/40",
-  orange: "bg-orange-100 dark:bg-orange-950/40",
-  amber: "bg-amber-100 dark:bg-amber-950/40",
-  yellow: "bg-yellow-100 dark:bg-yellow-950/40",
-  lime: "bg-lime-100 dark:bg-lime-950/40",
-  green: "bg-green-100 dark:bg-green-950/40",
-  emerald: "bg-emerald-100 dark:bg-emerald-950/40",
-  teal: "bg-teal-100 dark:bg-teal-950/40",
-  cyan: "bg-cyan-100 dark:bg-cyan-950/40",
-  sky: "bg-sky-100 dark:bg-sky-950/40",
-  blue: "bg-blue-100 dark:bg-blue-950/40",
-  indigo: "bg-indigo-100 dark:bg-indigo-950/40",
-  violet: "bg-violet-100 dark:bg-violet-950/40",
-  purple: "bg-purple-100 dark:bg-purple-950/40",
-  fuchsia: "bg-fuchsia-100 dark:bg-fuchsia-950/40",
-  pink: "bg-pink-100 dark:bg-pink-950/40",
-  rose: "bg-rose-100 dark:bg-rose-950/40",
+  slate: "rfs:bg-slate-100 rfs:dark:bg-slate-900/40",
+  gray: "rfs:bg-gray-100 rfs:dark:bg-gray-900/40",
+  zinc: "rfs:bg-zinc-100 rfs:dark:bg-zinc-900/40",
+  neutral: "rfs:bg-neutral-100 rfs:dark:bg-neutral-900/40",
+  stone: "rfs:bg-stone-100 rfs:dark:bg-stone-900/40",
+  red: "rfs:bg-red-100 rfs:dark:bg-red-950/40",
+  orange: "rfs:bg-orange-100 rfs:dark:bg-orange-950/40",
+  amber: "rfs:bg-amber-100 rfs:dark:bg-amber-950/40",
+  yellow: "rfs:bg-yellow-100 rfs:dark:bg-yellow-950/40",
+  lime: "rfs:bg-lime-100 rfs:dark:bg-lime-950/40",
+  green: "rfs:bg-green-100 rfs:dark:bg-green-950/40",
+  emerald: "rfs:bg-emerald-100 rfs:dark:bg-emerald-950/40",
+  teal: "rfs:bg-teal-100 rfs:dark:bg-teal-950/40",
+  cyan: "rfs:bg-cyan-100 rfs:dark:bg-cyan-950/40",
+  sky: "rfs:bg-sky-100 rfs:dark:bg-sky-950/40",
+  blue: "rfs:bg-blue-100 rfs:dark:bg-blue-950/40",
+  indigo: "rfs:bg-indigo-100 rfs:dark:bg-indigo-950/40",
+  violet: "rfs:bg-violet-100 rfs:dark:bg-violet-950/40",
+  purple: "rfs:bg-purple-100 rfs:dark:bg-purple-950/40",
+  fuchsia: "rfs:bg-fuchsia-100 rfs:dark:bg-fuchsia-950/40",
+  pink: "rfs:bg-pink-100 rfs:dark:bg-pink-950/40",
+  rose: "rfs:bg-rose-100 rfs:dark:bg-rose-950/40",
 };
 
 export function clamp(n: number, min: number, max: number) {

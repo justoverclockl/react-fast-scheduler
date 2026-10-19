@@ -185,6 +185,7 @@ export const useSchedulerInteractions = <
 
   const onApptPointerDown = React.useCallback(
     (event: React.PointerEvent, appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>) => {
+      suppressClickRef.current = false;
       if (!editable) return
 
       if (event.button !== 0) {
@@ -192,7 +193,6 @@ export const useSchedulerInteractions = <
       }
 
       event.stopPropagation();
-      suppressClickRef.current = false;
       const rect = (event.currentTarget as HTMLDivElement).getBoundingClientRect();
       const pointerMin = pointerToMin(appointment.resourceId, event.clientY);
       pendingDragRef.current = {
@@ -220,6 +220,7 @@ export const useSchedulerInteractions = <
 
   const onResizePointerDown = React.useCallback(
     (event: React.PointerEvent, appointment: SchedulerPresentationAppointment<TAppointment, TResourceId>) => {
+      suppressClickRef.current = false;
       if (!editable) return;
 
       if (event.button !== 0) {
@@ -227,7 +228,6 @@ export const useSchedulerInteractions = <
       }
 
       event.stopPropagation();
-      suppressClickRef.current = false;
       pendingDragRef.current = {
         drag: {
           kind: "resize",
