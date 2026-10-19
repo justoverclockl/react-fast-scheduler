@@ -12,6 +12,9 @@ A lightweight React day scheduler for resource-based booking UIs.
 
 ![Scheduler demo](https://res.cloudinary.com/dt74zb1rv/image/upload/v1774457086/Video_del_2026-03-25_17-35-51_kuflee.gif)
 
+## Agenda views:
+![Scheduler demo](https://i.ibb.co/yFkM7fGF/agenda.png)
+
 ## Install
 
 ```bash
