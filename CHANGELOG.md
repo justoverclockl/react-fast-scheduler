@@ -1,5 +1,26 @@
 # react-fast-scheduler
 
+## 4.0.0
+
+### Major Changes
+
+- [`46a01c6`](https://github.com/justoverclockl/react-fast-scheduler/commit/46a01c6b411b8db82695e28c08982c5e358c6ac6) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Introducing "Agenda views" and refactor code to improve performance and types.
+
+### Minor Changes
+
+- [`46a01c6`](https://github.com/justoverclockl/react-fast-scheduler/commit/46a01c6b411b8db82695e28c08982c5e358c6ac6) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Add an optional agenda view: a compact table of the selected day with one row every 15 minutes (times in a sticky left sidebar) and one column per resource; each cell lists the appointments starting in that slot.
+  - Enable it with `views={["day", "agenda"]}`; the built-in toolbar then shows a view switcher. Without `views` nothing changes.
+  - Control the view with `view` + `onViewChange`, or set the initial one with `defaultView`.
+  - Customize it with `viewLabels`, `renderAgendaItem`, and `agendaEmptyState`.
+  - `renderToolbar` now also receives `view`, `views`, `onViewChange`, and `defaultViewSwitcher`.
+
+- [`46a01c6`](https://github.com/justoverclockl/react-fast-scheduler/commit/46a01c6b411b8db82695e28c08982c5e358c6ac6) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Make the scheduler easier to set up, without breaking existing code:
+  - `adapter` is now optional when appointments use the default field names (`id`, `resourceId`, `start`, `end`, `title`), and a key-based adapter only needs the fields that differ (for example `adapter={{ resourceId: "staffId" }}`). TypeScript still requires every field that has no matching default.
+  - Inline key-based adapters no longer trigger recalculation on every render.
+  - `applySchedulerAppointmentChange` uses the same defaults, so `options` can be omitted or reduced to the fields that differ.
+  - New `onAppointmentClick` prop, called on plain clicks only (not after a drag or resize).
+  - Fix: the built-in color tokens (`blue`, `rose`, ...) for `getResourceAppointmentColorToken` now ship in the packaged stylesheet and work without Tailwind in the host app.
+
 ## 3.2.0
 
 ### Minor Changes
