@@ -47,6 +47,13 @@ export type NormalizeAppointmentsArgs<TAppointment, TResourceId extends Schedule
   selectedISO: string;
 };
 
+export type NormalizeAppointmentsForDaysArgs<TAppointment, TResourceId extends SchedulerId> = Omit<
+  NormalizeAppointmentsArgs<TAppointment, TResourceId>,
+  "selectedISO"
+> & {
+  days: Date[];
+};
+
 export type SchedulerResourceColumnProps<TAppointment, TResourceId extends SchedulerId> = {
   resource: BaseSchedulerResource<TResourceId>;
   colRefs: React.RefObject<Record<string, HTMLDivElement | null>>;

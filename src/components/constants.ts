@@ -14,6 +14,8 @@ const BOTTOM_PAD = 24;
 const RESOURCE_MIN_W = 420; // columns expand to fill available width; min width enables x-scroll when needed
 const RESOURCE_MIN_W_TW = "min-w-[400px] lg:w-full"; // columns expand to fill available width; min width enables x-scroll when needed
 const LANE_GAP = 6;
+const WEEK_DAY_MIN_W = 160; // week view: min width of a day column
+const WEEK_RESOURCE_W = 160; // week view: width of the resource column on the left
 
 export {
   OPEN_TIME,
@@ -29,4 +31,6 @@ export {
   RESOURCE_MIN_W,
   LANE_GAP,
   RESOURCE_MIN_W_TW,
+  WEEK_DAY_MIN_W,
+  WEEK_RESOURCE_W,
 };

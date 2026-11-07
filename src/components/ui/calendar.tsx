@@ -18,9 +18,12 @@ import { Button } from "./button";
 export function Calendar({
   selected,
   onSelect,
+  isDisabled,
 }: {
   selected?: Date;
   onSelect?: (date: Date) => void;
+  /** Days that cannot be picked, for example non-working days. */
+  isDisabled?: (date: Date) => boolean;
 }) {
   const [month, setMonth] = React.useState(selected ?? new Date());
 
@@ -86,6 +89,7 @@ export function Calendar({
                   "rfs:text-muted-foreground rfs:opacity-60",
                 isToday(day) && !isSelected && "rfs:border rfs:border-border"
               )}
+              disabled={isDisabled?.(day)}
               onClick={() => onSelect?.(day)}
             >
               {format(day, "d")}

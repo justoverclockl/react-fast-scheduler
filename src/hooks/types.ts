@@ -51,6 +51,8 @@ export type UseSchedulerBaseDataArgs<
   adapter?: SchedulerAppointmentAdapterOption<TAppointment, TResourceId>;
   dayEnd?: string;
   dayStart?: string;
+  /** Week view only: load the appointments of these days instead of `selectedDate`. */
+  visibleDays?: Date[];
 };
 
 export type UseSchedulerInteractionsArgs<

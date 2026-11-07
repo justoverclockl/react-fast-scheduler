@@ -9,6 +9,7 @@ import {
 import type {
   BuildResourceMapOptions,
   NormalizeAppointmentsArgs,
+  NormalizeAppointmentsForDaysArgs,
   SchedulerLayoutAppointment,
 } from "../types/internal";
 import type {
@@ -32,32 +33,49 @@ export function buildResourceMap<TResource, TResourceId extends SchedulerId, TVa
   return map;
 }
 
-export function normalizeAppointments<TAppointment, TResourceId extends SchedulerId>({
+function toPresentationAppointments<TAppointment, TResourceId extends SchedulerId>({
   adapter,
   appointments,
   dayMinutes,
   dayStartAbs,
+}: Omit<NormalizeAppointmentsArgs<TAppointment, TResourceId>, "selectedISO">) {
+  return appointments.map((appointment) => {
+    const id = adapter.getId(appointment);
+    const start = new Date(adapter.getStart(appointment));
+    const end = new Date(adapter.getEnd(appointment));
+    return {
+      raw: appointment,
+      id,
+      resourceId: adapter.getResourceId(appointment),
+      start,
+      end,
+      startMin: clamp(minutesFromDayStart(dayStartAbs, start), 0, dayMinutes),
+      endMin: clamp(minutesFromDayStart(dayStartAbs, end), 0, dayMinutes),
+      title: adapter.getTitle(appointment),
+      renderKey: String(id),
+      visualState: "normal" as const,
+    };
+  });
+}
+
+export function normalizeAppointments<TAppointment, TResourceId extends SchedulerId>({
   selectedISO,
+  ...args
 }: NormalizeAppointmentsArgs<TAppointment, TResourceId>) {
-  return appointments
-    .map((appointment) => {
-      const id = adapter.getId(appointment);
-      const start = new Date(adapter.getStart(appointment));
-      const end = new Date(adapter.getEnd(appointment));
-      return {
-        raw: appointment,
-        id,
-        resourceId: adapter.getResourceId(appointment),
-        start,
-        end,
-        startMin: clamp(minutesFromDayStart(dayStartAbs, start), 0, dayMinutes),
-        endMin: clamp(minutesFromDayStart(dayStartAbs, end), 0, dayMinutes),
-        title: adapter.getTitle(appointment),
-        renderKey: String(id),
-        visualState: "normal" as const,
-      };
-    })
-    .filter((appointment) => dayISO(appointment.start) === selectedISO);
+  return toPresentationAppointments(args).filter(
+    (appointment) => dayISO(appointment.start) === selectedISO
+  );
+}
+
+/** Like `normalizeAppointments`, for every appointment that starts on one of `days`. */
+export function normalizeAppointmentsForDays<TAppointment, TResourceId extends SchedulerId>({
+  days,
+  ...args
+}: NormalizeAppointmentsForDaysArgs<TAppointment, TResourceId>) {
+  const dayISOs = new Set(days.map(dayISO));
+  return toPresentationAppointments(args).filter((appointment) =>
+    dayISOs.has(dayISO(appointment.start))
+  );
 }
 
 export function buildAppointmentMap<TAppointment, TResourceId extends SchedulerId>(

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>react-fast-scheduler · Resource scheduling for React</title>
+    <meta name="description" content="A lightweight, controlled React scheduler for staff, rooms and equipment: day, week and agenda views, drag and resize, and an adapter for your own data." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // Apply the theme before first paint: ?theme=light|dark, then the saved choice, then the system.
+      try {
+        var t = new URLSearchParams(location.search).get("theme") || localStorage.getItem("rfs-demo-theme");
+        if (t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

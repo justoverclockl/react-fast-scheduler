@@ -309,6 +309,18 @@
   opacity: 0.5;
 }
 
+/*
+ * Grid lines as a background: each tile (2px wide, one step tall, set inline) paints only its
+ * top-left pixel, which gives a 1px dotted line per step, like the dotted borders above.
+ * Hour lines sit on top of the 15-minute lines, so they look darker, as before.
+ */
+.rfs-grid-lines {
+  @apply rfs:pointer-events-none rfs:absolute rfs:left-0 rfs:right-0;
+  background-image: conic-gradient(at 1px 1px, transparent 270deg, var(--rfs-border) 270deg);
+  background-repeat: repeat;
+  opacity: 0.5;
+}
+
 .rfs-card-slot {
   @apply rfs:absolute rfs:p-0.5;
 }

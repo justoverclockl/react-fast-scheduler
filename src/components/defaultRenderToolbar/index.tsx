@@ -9,8 +9,8 @@ type DefaultRenderToolbarProps = SchedulerToolbarRenderArgs & {
 };
 
 export function defaultRenderToolbar({
-  goToPreviousDay,
-  goToNextDay,
+  goToPrevious,
+  goToNext,
   defaultDatePicker,
   defaultViewSwitcher,
   prevButtonLabel = "Prev",
@@ -22,7 +22,7 @@ export function defaultRenderToolbar({
         <Button
           variant="outline"
           size="sm"
-          onClick={goToPreviousDay}
+          onClick={goToPrevious}
         >
           {prevButtonLabel}
         </Button>
@@ -30,7 +30,7 @@ export function defaultRenderToolbar({
         <Button
           variant="outline"
           size="sm"
-          onClick={goToNextDay}
+          onClick={goToNext}
         >
           {nextButtonLabel}
         </Button>

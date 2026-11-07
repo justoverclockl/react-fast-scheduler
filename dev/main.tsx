@@ -7,16 +7,17 @@ import { Button } from "../src/components/ui/button";
 import { Calendar } from "../src/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../src/components/ui/popover";
 
-import { createTodayAppointments, resources } from "./const";
+import { createTodayAppointments, createWeekAppointments, resources } from "./const";
 import "./styles.css";
 
 import type { Appointment, Resource } from "./const";
 
 function App() {
   const [selectedDate, setSelectedDate] = React.useState(() => new Date());
-  const [appointments, setAppointments] = React.useState<Appointment[]>(() =>
-    createTodayAppointments(new Date())
-  );
+  const [appointments, setAppointments] = React.useState<Appointment[]>(() => {
+    const today = createTodayAppointments(new Date());
+    return [...today, ...createWeekAppointments(new Date(), today.length + 1)];
+  });
 
   return (
     <div className="mx-auto my-6 px-4 font-sans">
@@ -36,8 +37,8 @@ function App() {
         renderToolbar={({
           selectedDate: value,
           onSelectedDateChange,
-          goToPreviousDay,
-          goToNextDay,
+          goToPrevious,
+          goToNext,
           defaultViewSwitcher,
         }) => (
           <div className="mb-4 flex flex-col gap-3 rounded-xl p-3 shadow-sm md:flex-row md:items-center md:justify-between">
@@ -49,7 +50,7 @@ function App() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={goToPreviousDay}
+                onClick={goToPrevious}
               >
                 Indietro
               </Button>
@@ -76,7 +77,7 @@ function App() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={goToNextDay}
+                onClick={goToNext}
               >
                 Avanti
               </Button>
@@ -97,8 +98,8 @@ function App() {
         }}
         getResourceAppointmentBackground={(resource) => resource.appointmentColorClass}
         renderResourceHeader={(resource) => <strong className="text-sm">{resource.label}</strong>}
-        views={["day", "agenda"]}
-        viewLabels={{ day: "Giorno", agenda: "Agenda" }}
+        views={["day", "week", "agenda"]}
+        viewLabels={{ day: "Giorno", week: "Settimana", agenda: "Agenda" }}
         agendaEmptyState="Nessun appuntamento"
       />
     </div>

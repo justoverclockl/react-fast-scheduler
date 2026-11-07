@@ -1,14 +1,20 @@
 import { defaultRenderDatePicker } from "@components/defaultRenderDatePicker";
 import { defaultRenderToolbar } from "@components/defaultRenderToolbar";
 import { Button } from "@components/ui/button";
-import { shiftDays } from "@utils/scheduler-core.utils";
+import { isSchedulerWorkingDay, shiftDays, shiftWorkingDays } from "@utils/scheduler-core.utils";
 import * as React from "react";
 
-import type { SchedulerToolbarRenderArgs, SchedulerView } from "@rfs-types";
+import type {
+  SchedulerDatePickerRenderArgs,
+  SchedulerToolbarRenderArgs,
+  SchedulerView,
+  SchedulerWeekday,
+} from "@rfs-types";
 
 const DEFAULT_VIEW_LABELS: Record<SchedulerView, React.ReactNode> = {
   day: "Day",
   agenda: "Agenda",
+  week: "Week",
 };
 
 type SchedulerToolbarProps = {
@@ -17,14 +23,13 @@ type SchedulerToolbarProps = {
   prevButtonLabel: React.ReactNode;
   nextButtonLabel: React.ReactNode;
   renderToolbar?: (args: SchedulerToolbarRenderArgs) => React.ReactNode;
-  renderDatePicker?: (args: {
-    selectedDate: Date;
-    onSelectedDateChange: (date: Date) => void;
-  }) => React.ReactNode;
+  renderDatePicker?: (args: SchedulerDatePickerRenderArgs) => React.ReactNode;
   view: SchedulerView;
   views: SchedulerView[];
   onViewChange: (view: SchedulerView) => void;
   viewLabels?: Partial<Record<SchedulerView, React.ReactNode>>;
+  visibleDays: Date[];
+  workingDays?: SchedulerWeekday[];
 };
 
 export function Toolbar({
@@ -38,12 +43,22 @@ export function Toolbar({
   views,
   onViewChange,
   viewLabels,
+  visibleDays,
+  workingDays,
 }: SchedulerToolbarProps) {
-  const goToPreviousDay = () => onSelectedDateChange(shiftDays(selectedDate, -1));
-  const goToNextDay = () => onSelectedDateChange(shiftDays(selectedDate, 1));
+  const isWorkingDay = (date: Date) => isSchedulerWorkingDay(date, workingDays);
+  // Without workingDays these move by exactly one day, as before.
+  const goToPreviousDay = () =>
+    onSelectedDateChange(shiftWorkingDays(selectedDate, -1, workingDays));
+  const goToNextDay = () => onSelectedDateChange(shiftWorkingDays(selectedDate, 1, workingDays));
+  const goToPrevious =
+    view === "week" ? () => onSelectedDateChange(shiftDays(selectedDate, -7)) : goToPreviousDay;
+  const goToNext =
+    view === "week" ? () => onSelectedDateChange(shiftDays(selectedDate, 7)) : goToNextDay;
   const defaultDatePicker = (renderDatePicker ?? defaultRenderDatePicker)({
     selectedDate,
     onSelectedDateChange,
+    isWorkingDay,
   });
   const defaultViewSwitcher =
     views.length > 1 ? (
@@ -70,6 +85,10 @@ export function Toolbar({
     onSelectedDateChange,
     goToPreviousDay,
     goToNextDay,
+    goToPrevious,
+    goToNext,
+    visibleDays,
+    isWorkingDay,
     defaultDatePicker,
     view,
     views,

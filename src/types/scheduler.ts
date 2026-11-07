@@ -163,8 +163,25 @@ export type SchedulerAppointmentAppearance = {
 export type SchedulerAppointmentColorToken = string;
 export type SchedulerResourceClassMap = Partial<Record<string, string>>;
 
-/** `"day"` is the resource grid; `"agenda"` is a time-ordered list of the selected day. */
-export type SchedulerView = "day" | "agenda";
+/**
+ * `"day"` is the resource grid; `"agenda"` is a time-ordered list of the selected day;
+ * `"week"` is a table with one row per resource and one column per day of the week
+ * containing the selected day.
+ */
+export type SchedulerView = "day" | "agenda" | "week";
+
+/** Day of the week: `0` is Sunday, `1` is Monday, ..., `6` is Saturday (like `Date.getDay()`). */
+export type SchedulerWeekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/** First day of the week: `0` is Sunday, `1` is Monday, and so on. */
+export type SchedulerWeekStartsOn = SchedulerWeekday;
+
+export type SchedulerDatePickerRenderArgs = {
+  selectedDate: Date;
+  onSelectedDateChange: (date: Date) => void;
+  /** `false` for days excluded by `workingDays`; always `true` when `workingDays` is not set. */
+  isWorkingDay: (date: Date) => boolean;
+};
 
 export type SchedulerAgendaItemRenderArgs<
   TAppointment,
@@ -179,8 +196,18 @@ export type SchedulerAgendaItemRenderArgs<
 export type SchedulerToolbarRenderArgs = {
   selectedDate: Date;
   onSelectedDateChange: (date: Date) => void;
+  /** Moves to the previous day, skipping days excluded by `workingDays`. */
   goToPreviousDay: () => void;
+  /** Moves to the next day, skipping days excluded by `workingDays`. */
   goToNextDay: () => void;
+  /** Like `goToPreviousDay`, or moves back by one week in the week view. */
+  goToPrevious: () => void;
+  /** Like `goToNextDay`, or moves forward by one week in the week view. */
+  goToNext: () => void;
+  /** Days shown by the current view: the selected day, or the working days of its week. */
+  visibleDays: Date[];
+  /** `false` for days excluded by `workingDays`; always `true` when `workingDays` is not set. */
+  isWorkingDay: (date: Date) => boolean;
   defaultDatePicker: React.ReactNode;
   view: SchedulerView;
   views: SchedulerView[];
@@ -250,10 +277,7 @@ export type SchedulerCommonProps<
   appointmentColorTokenClassMap?: Record<SchedulerAppointmentColorToken, string>;
   getResourceAppointmentBackground?: (resource: TResource) => string | undefined;
   renderToolbar?: (args: SchedulerToolbarRenderArgs) => React.ReactNode;
-  renderDatePicker?: (args: {
-    selectedDate: Date;
-    onSelectedDateChange: (date: Date) => void;
-  }) => React.ReactNode;
+  renderDatePicker?: (args: SchedulerDatePickerRenderArgs) => React.ReactNode;
   prevButtonLabel?: React.ReactNode;
   nextButtonLabel?: React.ReactNode;
   dayStart?: string;
@@ -272,4 +296,14 @@ export type SchedulerCommonProps<
   ) => React.ReactNode;
   /** Shown in the agenda view when the selected day has no appointments. */
   agendaEmptyState?: React.ReactNode;
+  /** First day of the week in the week view. Defaults to `1` (Monday). */
+  weekStartsOn?: SchedulerWeekStartsOn;
+  /**
+   * Working days, for example `[1, 2, 3, 4, 5]` for Monday to Friday. The week view shows only
+   * these days, previous/next navigation skips the others, and the default date picker disables
+   * them. Defaults to every day of the week.
+   */
+  workingDays?: SchedulerWeekday[];
+  /** Column header of a day in the week view. Defaults to the short weekday and the day number. */
+  renderWeekDayHeader?: (date: Date) => React.ReactNode;
 };

@@ -5,7 +5,11 @@ import {
   toSchedulerAppointmentFields,
 } from "@utils/scheduler-adapter.utils";
 import { dayISO, parseHHMM } from "@utils/scheduler-core.utils";
-import { buildAppointmentMap, normalizeAppointments } from "@utils/scheduler-data.utils";
+import {
+  buildAppointmentMap,
+  normalizeAppointments,
+  normalizeAppointmentsForDays,
+} from "@utils/scheduler-data.utils";
 import * as React from "react";
 
 import type { SchedulerBaseData, UseSchedulerBaseDataArgs } from "./types";
@@ -22,6 +26,7 @@ export function useSchedulerBaseData<
   dayStart = "09:00",
   resources,
   selectedDate,
+  visibleDays,
 }: UseSchedulerBaseDataArgs<TAppointment, TResource, TResourceId>): SchedulerBaseData<
   TAppointment,
   TResourceId
@@ -49,6 +54,16 @@ export function useSchedulerBaseData<
   const selectedISO = React.useMemo(() => dayISO(selectedDate), [selectedDate]);
 
   const renderAppts = React.useMemo(() => {
+    if (visibleDays) {
+      return normalizeAppointmentsForDays({
+        adapter: resolvedAdapter,
+        appointments,
+        dayMinutes,
+        dayStartAbs,
+        days: visibleDays,
+      });
+    }
+
     return normalizeAppointments({
       adapter: resolvedAdapter,
       appointments,
@@ -56,7 +71,7 @@ export function useSchedulerBaseData<
       dayStartAbs,
       selectedISO,
     });
-  }, [appointments, dayMinutes, dayStartAbs, resolvedAdapter, selectedISO]);
+  }, [appointments, dayMinutes, dayStartAbs, resolvedAdapter, selectedISO, visibleDays]);
 
   const appointmentMap = React.useMemo(() => buildAppointmentMap(renderAppts), [renderAppts]);
 
