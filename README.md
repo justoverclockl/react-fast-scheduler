@@ -1,3 +1,7 @@
+# Demo website
+
+[Click to see live demo and documentation!](https://react-fast-scheduler.vercel.app)
+
 # react-fast-scheduler
 
 A lightweight React day scheduler for resource-based booking UIs.
