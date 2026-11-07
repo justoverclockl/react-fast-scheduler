@@ -1,5 +1,11 @@
 # react-fast-scheduler
 
+## 4.2.1
+
+### Patch Changes
+
+- [`4cd2f18`](https://github.com/justoverclockl/react-fast-scheduler/commit/4cd2f18a53e52b076daec85bbf6d0cfa98915d6e) Thanks [@justoverclockl](https://github.com/justoverclockl)! - update readme
+
 ## 4.2.0
 
 ### Minor Changes
