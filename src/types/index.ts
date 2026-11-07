@@ -22,6 +22,9 @@ export type {
   SchedulerPresentationAppointment,
   SchedulerToolbarRenderArgs,
   SchedulerView,
+  SchedulerWeekStartsOn,
+  SchedulerWeekday,
+  SchedulerDatePickerRenderArgs,
   SchedulerAgendaItemRenderArgs,
   SchedulerProps,
 } from "./scheduler";

@@ -190,3 +190,27 @@ export const createTodayAppointments = (baseDate: Date): Appointment[] => {
     )
   );
 };
+
+/** A few appointments on the other days of the current week, to show the week view. */
+export const createWeekAppointments = (baseDate: Date, firstId: number): Appointment[] => {
+  let nextId = firstId;
+  const result: Appointment[] = [];
+
+  for (let delta = -6; delta <= 6; delta++) {
+    if (delta === 0) {
+      continue;
+    }
+    const day = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + delta);
+    for (const { resourceId, entries } of appointmentTemplates) {
+      // Two or three appointments per room and day, varying with the day.
+      const count = 2 + ((Math.abs(delta) + resourceId) % 2);
+      for (let i = 0; i < count; i++) {
+        const [title, description, start, end] =
+          entries[(Math.abs(delta) + resourceId + i * 3) % entries.length];
+        result.push(createAppointment(nextId++, resourceId, title, description, start, end, day));
+      }
+    }
+  }
+
+  return result;
+};

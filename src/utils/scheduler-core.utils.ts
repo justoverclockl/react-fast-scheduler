@@ -1,8 +1,13 @@
 import { STEP_MIN } from "@components/constants";
-import { format } from "date-fns";
+import { format, startOfWeek } from "date-fns";
 
 import type { LaidOut, NameLike, TimeBlockLike } from "@rfs-types/internal";
-import type { SchedulerAppointmentColorToken } from "@rfs-types/scheduler";
+import type {
+  SchedulerAppointmentColorToken,
+  SchedulerView,
+  SchedulerWeekStartsOn,
+  SchedulerWeekday,
+} from "@rfs-types/scheduler";
 
 export function isNameLike(resource: unknown): resource is NameLike {
   if (!resource || typeof resource !== "object") {
@@ -82,6 +87,62 @@ export function dayISO(date: Date) {
 
 export function shiftDays(date: Date, delta: number) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + delta);
+}
+
+/** The 7 days of the week containing `date`, at midnight. */
+export function getWeekDays(date: Date, weekStartsOn: SchedulerWeekStartsOn = 1) {
+  const first = startOfWeek(date, { weekStartsOn });
+  return Array.from({ length: 7 }, (_, i) => shiftDays(first, i));
+}
+
+/**
+ * Whether `date` is a working day. Without `workingDays` (or with an empty list) every day is
+ * a working day.
+ */
+export function isSchedulerWorkingDay(date: Date, workingDays?: readonly SchedulerWeekday[]) {
+  if (!workingDays || workingDays.length === 0) {
+    return true;
+  }
+  return workingDays.includes(date.getDay() as SchedulerWeekday);
+}
+
+/**
+ * The nearest working day before (`direction` -1) or after (`direction` 1) `date`.
+ * Without working days it is simply the previous or next day.
+ */
+export function shiftWorkingDays(
+  date: Date,
+  direction: 1 | -1,
+  workingDays?: readonly SchedulerWeekday[]
+) {
+  let next = shiftDays(date, direction);
+  // At most 7 steps: any 7 consecutive days contain every weekday.
+  for (let i = 0; i < 7 && !isSchedulerWorkingDay(next, workingDays); i++) {
+    next = shiftDays(next, direction);
+  }
+  return next;
+}
+
+export type SchedulerVisibleDaysOptions = {
+  weekStartsOn?: SchedulerWeekStartsOn;
+  workingDays?: readonly SchedulerWeekday[];
+};
+
+/**
+ * Days shown by a view: the working days of the week containing `selectedDate` for `"week"`,
+ * otherwise only `selectedDate`.
+ */
+export function getSchedulerVisibleDays(
+  view: SchedulerView,
+  selectedDate: Date,
+  { weekStartsOn = 1, workingDays }: SchedulerVisibleDaysOptions = {}
+) {
+  if (view !== "week") {
+    return [shiftDays(selectedDate, 0)];
+  }
+  return getWeekDays(selectedDate, weekStartsOn).filter((day) =>
+    isSchedulerWorkingDay(day, workingDays)
+  );
 }
 
 export function dateAtMinute(selectedDate: Date, dayStartAbs: number, minuteFromStart: number) {

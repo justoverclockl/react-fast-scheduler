@@ -14,7 +14,7 @@ const __dirname = dirname(__filename);
 export default defineConfig([
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  globalIgnores(["coverage/**", "dist/**", "eslint.config.js", "node_modules/**"]),
+  globalIgnores(["coverage/**", "dist/**", "eslint.config.js", "node_modules/**", "demos/**"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: tseslint.configs.recommendedTypeChecked,

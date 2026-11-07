@@ -6,6 +6,33 @@ import { defaultRenderAppointment } from "../../defaultRenderAppointment";
 import type { SchedulerResourceColumnProps } from "../../../types/internal";
 import type { SchedulerId } from "../../../types/scheduler";
 
+/**
+ * One dotted line every `stepMin` minutes, from the start to the end of the day. The element is
+ * one pixel taller than the last line so that line is painted too.
+ */
+function GridLines({
+  className,
+  stepMin,
+  dayMinutes,
+}: {
+  className: string;
+  stepMin: number;
+  dayMinutes: number;
+}) {
+  const stepPx = stepMin * PX_PER_MIN;
+  return (
+    <div
+      aria-hidden="true"
+      className={`rfs-grid-lines ${className}`}
+      style={{
+        top: TOP_PAD,
+        height: Math.floor(dayMinutes / stepMin) * stepPx + 1,
+        backgroundSize: `2px ${stepPx}px`,
+      }}
+    />
+  );
+}
+
 export const ResourceColInner = <TAppointment, TResourceId extends SchedulerId>({
   resource,
   colRefs,
@@ -34,20 +61,17 @@ export const ResourceColInner = <TAppointment, TResourceId extends SchedulerId>(
         className="rfs-col-inner rfs:bg-card"
         style={{ height: gridHeight }}
       >
-        {Array.from({ length: Math.floor(dayMinutes / 60) + 1 }).map((_, i) => (
-          <div
-            key={`major-${i}`}
-            className="rfs-hour-line rfs:border-border/70"
-            style={{ top: TOP_PAD + i * 60 * PX_PER_MIN }}
-          />
-        ))}
-        {Array.from({ length: Math.floor(dayMinutes / STEP_MIN) + 1 }).map((_, i) => (
-          <div
-            key={`minor-${i}`}
-            className="rfs-slot-line rfs:border-border/50"
-            style={{ top: TOP_PAD + i * STEP_MIN * PX_PER_MIN }}
-          />
-        ))}
+        {/* Grid lines drawn as a repeated background: two elements instead of one per line. */}
+        <GridLines
+          className="rfs-hour-lines"
+          stepMin={60}
+          dayMinutes={dayMinutes}
+        />
+        <GridLines
+          className="rfs-slot-lines"
+          stepMin={STEP_MIN}
+          dayMinutes={dayMinutes}
+        />
         {appointments.map((appointment) => {
           const laneWidthPct = 100 / appointment.lanes;
           const top = TOP_PAD + appointment.startMin * PX_PER_MIN;

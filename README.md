@@ -12,8 +12,15 @@ A lightweight React day scheduler for resource-based booking UIs.
 
 ![Scheduler demo](https://res.cloudinary.com/dt74zb1rv/image/upload/v1774457086/Video_del_2026-03-25_17-35-51_kuflee.gif)
 
+## Demo site
+
+The [`demos/`](./demos) folder holds a one-page site that runs every view and feature (day, week and agenda views, drag and resize, working days, adapter, colors, custom rendering, read-only mode) on mocked data, with the code of each example next to it. See [demos/README.md](./demos/README.md) to run it locally or deploy it on Vercel.
+
 ## Agenda views:
 ![Scheduler demo](https://i.ibb.co/yFkM7fGF/agenda.png)
+
+## Week views:
+![Week view](https://res.cloudinary.com/dt74zb1rv/image/upload/v1794047682/wee-view_orwvjj.png)
 
 ## Install
 
@@ -443,6 +450,85 @@ const [view, setView] = useState<SchedulerView>("agenda");
 />
 ```
 
+### Week view
+
+`"week"` shows the 7 days of the week that contains `selectedDate` as a table: one row per resource and one column per day. Each cell lists that resource's appointments of that day, ordered by start time, with their start and end time. It works like the agenda, spread over the week:
+
+```tsx
+<Scheduler
+  // ...other props
+  views={["day", "week", "agenda"]}
+  viewLabels={{ day: "Giorno", week: "Settimana", agenda: "Agenda" }}
+/>
+```
+
+In the week view:
+
+- row headers use the same `renderResourceHeader` as the other views, and stay visible when the table scrolls horizontally
+- items use the same colors as the grid cards (see [Styling](#styling))
+- `renderAgendaItem` customizes the items, as in the agenda
+- `onAppointmentClick` works on each item
+- move and resize are not available
+- the built-in toolbar moves one week at a time; `selectedDate` stays a single day, and the week is the one that contains it
+- the week starts on Monday by default; use `weekStartsOn` to change it (`0` is Sunday)
+- with `workingDays`, only the working days get a column (see [Working days](#working-days))
+- use `renderWeekDayHeader` to customize the day headers, for example to localize them
+- appointments whose `resourceId` does not match a resource are not shown, like in the other views
+
+```tsx
+import { it } from "date-fns/locale";
+import { format } from "date-fns";
+
+<Scheduler
+  // ...other props
+  views={["day", "week"]}
+  weekStartsOn={1}
+  renderWeekDayHeader={(date) => <strong>{format(date, "EEE d", { locale: it })}</strong>}
+/>
+```
+
+The week view needs the appointments of the whole week. If you load appointments by day, load the visible days instead: `renderToolbar` receives them as `visibleDays`, and `getSchedulerVisibleDays(view, selectedDate, { weekStartsOn, workingDays })` returns the same days:
+
+```tsx
+import { getSchedulerVisibleDays } from "@marco.colia/react-fast-scheduler";
+
+const days = getSchedulerVisibleDays(view, selectedDate, { weekStartsOn: 1, workingDays });
+const from = days[0];
+const to = days[days.length - 1];
+// fetch appointments from `from` to the end of `to`
+```
+
+The day and agenda views do not change: they still show only `selectedDate`.
+
+### Working days
+
+By default every day of the week is a working day. Use `workingDays` to list the days your schedule is open, as numbers from `0` (Sunday) to `6` (Saturday), like `Date.getDay()`:
+
+```tsx
+<Scheduler
+  // ...other props
+  views={["day", "week", "agenda"]}
+  workingDays={[1, 2, 3, 4, 5]} // Monday to Friday
+/>
+```
+
+With `workingDays`:
+
+- the week view shows only the working days
+- Prev/Next in the day and agenda views skip the other days (from Friday, Next goes to Monday); in the week view they still move by one week
+- the default date picker disables the other days
+- `renderToolbar` and `renderDatePicker` receive `isWorkingDay(date)`, and `goToPreviousDay`/`goToNextDay` skip the other days too, so custom toolbars and pickers can follow the same rule
+
+`selectedDate` stays controlled by your app: the scheduler never changes it on its own. If it falls on a non-working day (for example `new Date()` on a Saturday), the day and agenda views still show that day. To avoid it, pick the nearest working day yourself, for example with `isSchedulerWorkingDay`:
+
+```tsx
+import { isSchedulerWorkingDay } from "@marco.colia/react-fast-scheduler";
+
+isSchedulerWorkingDay(new Date(2026, 2, 28), [1, 2, 3, 4, 5]); // false, it is a Saturday
+```
+
+Without `workingDays` (or with an empty list) the scheduler works exactly as before: every day is shown and Prev/Next move by one day.
+
 ### Custom agenda rows
 
 Use `renderAgendaItem` to replace the content of each agenda row. It receives the normalized `appointment` (with `title`, `start`, `end`, and your original object in `raw`), the `resource` of its column, and the resolved `appointmentAppearance`:
@@ -600,18 +686,18 @@ Use `renderToolbar` when you want to replace the whole header:
 ```tsx
 <Scheduler
   // ...other props
-  renderToolbar={({ selectedDate, goToPreviousDay, goToNextDay, defaultDatePicker }) => (
+  renderToolbar={({ selectedDate, goToPrevious, goToNext, defaultDatePicker }) => (
     <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3">
       <div>
         <div className="text-sm font-medium">{selectedDate.toDateString()}</div>
         <div className="text-xs text-muted-foreground">Team schedule</div>
       </div>
       <div className="flex items-center gap-2">
-        <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={goToPreviousDay}>
+        <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={goToPrevious}>
           Previous
         </button>
         {defaultDatePicker}
-        <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={goToNextDay}>
+        <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={goToNext}>
           Next
         </button>
       </div>
@@ -620,11 +706,13 @@ Use `renderToolbar` when you want to replace the whole header:
 />
 ```
 
+`goToPrevious` and `goToNext` move by one day, or by one week in the week view. `goToPreviousDay` and `goToNextDay` always move by one day. With [`workingDays`](#working-days), the day moves skip non-working days. `visibleDays` lists the days shown by the current view, and `isWorkingDay(date)` tells whether a day is a working day.
+
 `renderToolbar` also receives `view`, `views`, `onViewChange`, and `defaultViewSwitcher` (the built-in switcher, or `null` when fewer than two views are enabled). Render `{defaultViewSwitcher}` in your toolbar to keep the view switch, or build your own with `views` and `onViewChange`.
 
 ### Custom date picker slot
 
-If you want to keep the default toolbar but swap the date picker UI, use `renderDatePicker`.
+If you want to keep the default toolbar but swap the date picker UI, use `renderDatePicker`. It receives `selectedDate`, `onSelectedDateChange`, and `isWorkingDay(date)`, which you can use to disable non-working days.
 
 ```tsx
 <Scheduler
@@ -665,13 +753,16 @@ If you want to keep the default toolbar but swap the date picker UI, use `render
 - `nextButtonLabel`: custom next button label
 - `dayStart`: visible schedule start time, for example `"09:00"`
 - `dayEnd`: visible schedule end time, for example `"18:00"`
-- `views`: views offered by the switcher, for example `["day", "agenda"]`; defaults to `["day"]` (no switcher)
-- `view`: controlled current view (`"day"` or `"agenda"`)
+- `views`: views offered by the switcher, for example `["day", "week", "agenda"]`; defaults to `["day"]` (no switcher)
+- `view`: controlled current view (`"day"`, `"week"` or `"agenda"`)
 - `defaultView`: initial view when `view` is not controlled; defaults to the first entry of `views`
 - `onViewChange`: called when the user picks a view in the switcher
 - `viewLabels`: switcher labels, for example `{ day: "Giorno", agenda: "Agenda" }`
-- `renderAgendaItem`: custom agenda row content
+- `renderAgendaItem`: custom agenda row content, also used for the items of the week view
 - `agendaEmptyState`: content shown in the agenda when the day has no appointments, defaults to `"No appointments"`
+- `weekStartsOn`: first day of the week in the week view, `0` (Sunday) to `6` (Saturday); defaults to `1` (Monday)
+- `workingDays`: working days, `0` (Sunday) to `6` (Saturday), for example `[1, 2, 3, 4, 5]`; defaults to every day (see [Working days](#working-days))
+- `renderWeekDayHeader`: custom day header in the week view; receives the day as a `Date`
 
 ## Production Notes
 

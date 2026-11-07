@@ -1,16 +1,15 @@
 
-import { defaultRenderAppointment } from "@components/defaultRenderAppointment";
 import { useSchedulerBaseData } from "@hooks/useSchedulerBaseData";
 import { useSchedulerInteractions } from "@hooks/useSchedulerInteractions";
 import { useSchedulerPresentationData } from "@hooks/useSchedulerPresentationData";
 import { useSchedulerView } from "@hooks/useSchedulerView";
-import * as React from "react";
+import { useSchedulerVisibleDays } from "@hooks/useSchedulerVisibleDays";
 
 import { Agenda } from "./parts/Agenda";
-import { Gutter } from "./parts/Gutter";
-import { Header } from "./parts/Header";
-import { ResourceCol } from "./parts/ResourceCol";
+import { DayGrid } from "./parts/DayGrid";
+import { MoveOverlay } from "./parts/MoveOverlay";
 import { Toolbar } from "./parts/Toolbar";
+import { Week } from "./parts/Week";
 
 import type {
   BaseSchedulerResource,
@@ -19,7 +18,6 @@ import type {
   SchedulerView,
 } from "@rfs-types";
 
-const IDLE_DRAG = { kind: "none" } as const;
 const DEFAULT_VIEWS: SchedulerView[] = ["day"];
 
 export function Scheduler<
@@ -56,6 +54,9 @@ export function Scheduler<
   viewLabels,
   renderAgendaItem,
   agendaEmptyState,
+  weekStartsOn,
+  workingDays,
+  renderWeekDayHeader,
 }: SchedulerProps<TAppointment, TResource, TResourceId>) {
   const [view, handleViewChange] = useSchedulerView({
     views,
@@ -64,8 +65,23 @@ export function Scheduler<
     onViewChange,
   });
 
+  const { visibleDays, weekDays } = useSchedulerVisibleDays(
+    view,
+    selectedDate,
+    weekStartsOn,
+    workingDays
+  );
+
   const { appointmentMap, dayMinutes, dayStartAbs, gridHeight, gridMinWidth, renderAppts } =
-    useSchedulerBaseData({ adapter, appointments, dayEnd, dayStart, resources, selectedDate });
+    useSchedulerBaseData({
+      adapter,
+      appointments,
+      dayEnd,
+      dayStart,
+      resources,
+      selectedDate,
+      visibleDays: weekDays,
+    });
 
   const {
     colRefs,
@@ -86,7 +102,7 @@ export function Scheduler<
     renderAppts,
     resources,
     selectedDate,
-    editable
+    editable,
   });
 
   const { appointmentAppearanceByResource, appointmentBgByResource, laidOutByResource } =
@@ -102,31 +118,6 @@ export function Scheduler<
       resources,
       selectedDate,
     });
-
-  const moveOverlay = React.useMemo(() => {
-    if (drag.kind !== "move" || !movePreview) {
-      return null;
-    }
-
-    return {
-      appointment: {
-        ...movePreview.appointment,
-        resourceId: drag.resourceId,
-        startMin: drag.startMin,
-        endMin: drag.endMin,
-        visualState: "ghost" as const,
-        renderKey: `${movePreview.appointment.renderKey}-overlay`,
-        lane: 0,
-        lanes: 1,
-      },
-      appearance: appointmentAppearanceByResource.get(drag.resourceId),
-      background: appointmentBgByResource.get(drag.resourceId),
-      left: movePreview.clientX - movePreview.offsetX,
-      top: movePreview.clientY - movePreview.offsetY,
-      width: movePreview.width,
-      height: movePreview.height,
-    };
-  }, [appointmentAppearanceByResource, appointmentBgByResource, drag, movePreview]);
 
   return (
     <section
@@ -148,9 +139,22 @@ export function Scheduler<
         views={views}
         onViewChange={handleViewChange}
         viewLabels={viewLabels}
+        visibleDays={visibleDays}
+        workingDays={workingDays}
       />
 
-      {view === "agenda" ? (
+      {view === "week" ? (
+        <Week
+          visibleDays={visibleDays}
+          appointments={renderAppts}
+          resources={resources}
+          appointmentAppearanceByResource={appointmentAppearanceByResource}
+          onAppointmentClick={onAppointmentClick}
+          renderResourceHeader={renderResourceHeader}
+          renderWeekDayHeader={renderWeekDayHeader}
+          renderAgendaItem={renderAgendaItem}
+        />
+      ) : view === "agenda" ? (
         <Agenda
           appointments={renderAppts}
           resources={resources}
@@ -161,65 +165,35 @@ export function Scheduler<
           emptyState={agendaEmptyState}
         />
       ) : (
-      <div className="rfs-shell rfs:border-border rfs:bg-card">
-        <div style={{ minWidth: gridMinWidth }}>
-          <Header
-            resources={resources}
-            renderResourceHeader={renderResourceHeader}
-          />
-          <div className="rfs-body">
-            <Gutter
-              dayMinutes={dayMinutes}
-              dayStartAbs={dayStartAbs}
-              gridHeight={gridHeight}
-            />
-            <div className="rfs-grid">
-              {resources.map((resource) => (
-                <ResourceCol
-                  key={String(resource.id)}
-                  resource={resource}
-                  colRefs={colRefs}
-                  gridHeight={gridHeight}
-                  dayMinutes={dayMinutes}
-                  appointments={laidOutByResource.get(resource.id) ?? []}
-                  appointmentAppearance={appointmentAppearanceByResource.get(resource.id)}
-                  appointmentBg={appointmentBgByResource.get(resource.id)}
-                  isDropInvalid={isDropInvalid}
-                  renderAppointment={renderAppointment}
-                  onAppointmentClick={onAppointmentClick}
-                  onApptPointerDown={onApptPointerDown}
-                  onResizePointerDown={onResizePointerDown}
-                  drag={drag.kind === "resize" && drag.resourceId === resource.id ? drag : IDLE_DRAG}
-                  suppressClickRef={suppressClickRef}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+        <DayGrid
+          resources={resources}
+          renderResourceHeader={renderResourceHeader}
+          gridMinWidth={gridMinWidth}
+          laidOutByResource={laidOutByResource}
+          drag={drag}
+          colRefs={colRefs}
+          dayMinutes={dayMinutes}
+          dayStartAbs={dayStartAbs}
+          gridHeight={gridHeight}
+          appointmentAppearanceByResource={appointmentAppearanceByResource}
+          appointmentBgByResource={appointmentBgByResource}
+          isDropInvalid={isDropInvalid}
+          renderAppointment={renderAppointment}
+          onAppointmentClick={onAppointmentClick}
+          onApptPointerDown={onApptPointerDown}
+          onResizePointerDown={onResizePointerDown}
+          suppressClickRef={suppressClickRef}
+        />
       )}
-      {moveOverlay ? (
-        <div
-          className="rfs-drag-overlay"
-          style={{
-            left: moveOverlay.left,
-            top: moveOverlay.top,
-            width: moveOverlay.width,
-            height: moveOverlay.height,
-          }}
-        >
-          {(renderAppointment ?? defaultRenderAppointment)({
-            appointment: moveOverlay.appointment,
-            isDropInvalid,
-            onPointerDown: () => undefined,
-            onResizePointerDown: () => undefined,
-            appointmentAppearance: moveOverlay.appearance,
-            appointmentBackgroundColor: moveOverlay.background,
-            drag,
-            suppressClickRef,
-          })}
-        </div>
-      ) : null}
+      <MoveOverlay
+        drag={drag}
+        movePreview={movePreview}
+        appointmentAppearanceByResource={appointmentAppearanceByResource}
+        appointmentBgByResource={appointmentBgByResource}
+        isDropInvalid={isDropInvalid}
+        renderAppointment={renderAppointment}
+        suppressClickRef={suppressClickRef}
+      />
     </section>
   );
 }

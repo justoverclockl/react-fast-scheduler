@@ -10,6 +10,7 @@ import type { DefaultRenderDatePickerProps } from "./types";
 export function defaultRenderDatePicker({
   selectedDate,
   onSelectedDateChange,
+  isWorkingDay,
 }: DefaultRenderDatePickerProps) {
   return (
     <Popover>
@@ -29,6 +30,7 @@ export function defaultRenderDatePicker({
         <Calendar
           selected={selectedDate}
           onSelect={onSelectedDateChange}
+          isDisabled={isWorkingDay ? (date) => !isWorkingDay(date) : undefined}
         />
       </PopoverContent>
     </Popover>
