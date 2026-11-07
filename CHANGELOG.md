@@ -1,5 +1,17 @@
 # react-fast-scheduler
 
+## 4.2.0
+
+### Minor Changes
+
+- [#42](https://github.com/justoverclockl/react-fast-scheduler/pull/42) [`66ce3c8`](https://github.com/justoverclockl/react-fast-scheduler/commit/66ce3c89642dcb8672e0cec491efa643c4045c6c) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Add the `"week"` view: the 7 days of the week containing `selectedDate` as a table with one row per resource and one column per day; each cell lists that resource's appointments of the day, ordered by start time (`renderAgendaItem` and `onAppointmentClick` work as in the agenda). New props `weekStartsOn` (defaults to Monday) and `renderWeekDayHeader`; `renderToolbar` also receives `goToPrevious`, `goToNext` and `visibleDays`; new `getSchedulerVisibleDays(view, selectedDate, { weekStartsOn, workingDays })` helper. The day and agenda views are unchanged. TypeScript: `SchedulerView` now includes `"week"`, so an exhaustive `switch` or a complete `Record<SchedulerView, ...>` needs the new case.
+
+- [#42](https://github.com/justoverclockl/react-fast-scheduler/pull/42) [`66ce3c8`](https://github.com/justoverclockl/react-fast-scheduler/commit/66ce3c89642dcb8672e0cec491efa643c4045c6c) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Add `workingDays` to set the days the schedule is open (`0` is Sunday, `6` is Saturday). The week view shows only working days, Prev/Next in the day and agenda views skip the others, and the default date picker disables them. `renderToolbar` and `renderDatePicker` receive `isWorkingDay`; new `isSchedulerWorkingDay` helper. Without `workingDays` every day is a working day, as before.
+
+### Patch Changes
+
+- [#42](https://github.com/justoverclockl/react-fast-scheduler/pull/42) [`66ce3c8`](https://github.com/justoverclockl/react-fast-scheduler/commit/66ce3c89642dcb8672e0cec491efa643c4045c6c) Thanks [@justoverclockl](https://github.com/justoverclockl)! - Faster rendering. The day grid draws its hour and 15-minute lines as a CSS background, two elements per column instead of one per line, with the same look. The week view re-renders only the rows whose appointments changed. If you styled the lines with your own CSS, target `.rfs-hour-lines` and `.rfs-slot-lines` (background layers) instead of `.rfs-hour-line` and `.rfs-slot-line`.
+
 ## 4.1.0
 
 ### Minor Changes
